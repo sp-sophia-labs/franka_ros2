@@ -46,7 +46,6 @@ class JointPositionExampleController : public controller_interface::ControllerIn
   std::array<double, 7> initial_q_{0, 0, 0, 0, 0, 0, 0};
   const double trajectory_period{0.001};
   double elapsed_time_ = 0.0;
-  std::string arm_id{"panda"};
   const std::string k_HW_IF_INITIAL_POSITION = "initial_joint_position";
 
   bool initialization_flag_{true};

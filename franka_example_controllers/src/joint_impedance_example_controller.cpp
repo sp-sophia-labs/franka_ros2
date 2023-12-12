@@ -68,7 +68,7 @@ controller_interface::return_type JointImpedanceExampleController::update(
 
 CallbackReturn JointImpedanceExampleController::on_init() {
   try {
-    auto_declare<std::string>("arm_id", "panda");
+    auto_declare<std::string>("arm_id", "fr3");
     auto_declare<std::vector<double>>("k_gains", {});
     auto_declare<std::vector<double>>("d_gains", {});
   } catch (const std::exception& e) {
