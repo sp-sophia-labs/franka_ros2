@@ -56,7 +56,7 @@ RUN cd ~/source_code && git clone https://github.com/frankaemika/libfranka.git \
     && git submodule init \
     && git submodule update \
     && mkdir build && cd build \
-    && cmake -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF  .. \
+    && cmake -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release .. \
     && make franka -j$(nproc) \
     && cpack -G DEB \
     && sudo dpkg -i libfranka*.deb
