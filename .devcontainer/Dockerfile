@@ -48,6 +48,7 @@ RUN apt-get update && \
     ros-humble-ros2-controllers \
     ros-humble-joint-state-broadcaster \
     ros-humble-ament-cmake-clang-tidy \
+    ros-humble-pinocchio \
     libignition-gazebo6-dev \
     libpoco-dev \
     libeigen3-dev \
