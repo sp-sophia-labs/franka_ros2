@@ -36,6 +36,9 @@ RUN apt-get update && \
     ros-humble-sensor-msgs \
     ros-humble-gazebo-ros \
     ros-humble-control-toolbox \
+    ros-humble-controller-manager \
+    ros-humble-hardware-interface \
+    ros-humble-hardware-interface-testing \
     ros-humble-ackermann-msgs \
     ros-humble-ament-cmake \
     ros-humble-ament-cmake-clang-format \
