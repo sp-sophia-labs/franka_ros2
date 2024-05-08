@@ -39,6 +39,7 @@ RUN apt-get update && \
     ros-humble-controller-manager \
     ros-humble-hardware-interface \
     ros-humble-hardware-interface-testing \
+    ros-humble-launch-testing \
     ros-humble-ackermann-msgs \
     ros-humble-ament-cmake \
     ros-humble-ament-cmake-clang-format \
