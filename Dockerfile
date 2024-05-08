@@ -54,10 +54,7 @@ RUN python3 -m pip install -U \
     flake8-deprecated \
     flake8-docstrings \
     flake8-import-order \
-    flake8-quotes \
-    pytest-repeat \
-    pytest-rerunfailures \
-    pytest
+    flake8-quotes
 
 RUN mkdir ~/source_code    
 RUN cd ~/source_code && git clone https://github.com/frankaemika/libfranka.git \
