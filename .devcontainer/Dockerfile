@@ -36,6 +36,10 @@ RUN apt-get update && \
     ros-humble-sensor-msgs \
     ros-humble-gazebo-ros \
     ros-humble-control-toolbox \
+    ros-humble-controller-manager \
+    ros-humble-hardware-interface \
+    ros-humble-hardware-interface-testing \
+    ros-humble-launch-testing \
     ros-humble-ackermann-msgs \
     ros-humble-ament-cmake \
     ros-humble-ament-cmake-clang-format \
@@ -56,7 +60,7 @@ RUN cd ~/source_code && git clone https://github.com/frankaemika/libfranka.git \
     && git submodule init \
     && git submodule update \
     && mkdir build && cd build \
-    && cmake -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF  .. \
+    && cmake -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release .. \
     && make franka -j$(nproc) \
     && cpack -G DEB \
     && sudo dpkg -i libfranka*.deb

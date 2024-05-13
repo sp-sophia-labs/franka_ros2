@@ -36,6 +36,8 @@ RUN apt-get update -y && apt-get install -y --allow-unauthenticated \
     ros-humble-control-toolbox \    
     ros-humble-controller-manager \
     ros-humble-hardware-interface \
+    ros-humble-hardware-interface-testing \
+    ros-humble-launch-testing \
     ros-humble-generate-parameter-library \
     ros-humble-controller-interface \
     ros-humble-ros2-control-test-assets \
@@ -52,10 +54,7 @@ RUN python3 -m pip install -U \
     flake8-deprecated \
     flake8-docstrings \
     flake8-import-order \
-    flake8-quotes \
-    pytest-repeat \
-    pytest-rerunfailures \
-    pytest
+    flake8-quotes
 
 RUN mkdir ~/source_code    
 RUN cd ~/source_code && git clone https://github.com/frankaemika/libfranka.git \
