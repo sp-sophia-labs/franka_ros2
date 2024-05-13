@@ -23,34 +23,33 @@ RUN groupadd --gid $USER_GID $USERNAME \
 
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    ros-humble-hardware-interface \
-    ros-humble-generate-parameter-library \
-    ros-humble-xacro \
-    ros-humble-controller-interface \
-    ros-humble-realtime-tools \
-    ros-humble-ros2-control-test-assets \
-    ros-humble-controller-manager \
-    ros-humble-joint-state-publisher-gui \
-    ros-humble-control-msgs \
-    ros-humble-geometry-msgs \
-    ros-humble-sensor-msgs \
-    ros-humble-gazebo-ros \
-    ros-humble-control-toolbox \
-    ros-humble-controller-manager \
-    ros-humble-hardware-interface \
-    ros-humble-hardware-interface-testing \
-    ros-humble-launch-testing \
+    libeigen3-dev \
+    libignition-gazebo6-dev \
+    libpoco-dev \
     ros-humble-ackermann-msgs \
     ros-humble-ament-cmake \
     ros-humble-ament-cmake-clang-format \
-    ros-humble-moveit \
-    ros-humble-ros2-control \
-    ros-humble-ros2-controllers \
-    ros-humble-joint-state-broadcaster \
     ros-humble-ament-cmake-clang-tidy \
-    libignition-gazebo6-dev \
-    libpoco-dev \
-    libeigen3-dev \
+    ros-humble-control-msgs \
+    ros-humble-control-toolbox \
+    ros-humble-controller-interface \
+    ros-humble-controller-manager \
+    ros-humble-gazebo-ros \
+    ros-humble-generate-parameter-library \
+    ros-humble-geometry-msgs \
+    ros-humble-hardware-interface \
+    ros-humble-hardware-interface-testing \
+    ros-humble-joint-state-broadcaster \
+    ros-humble-joint-state-publisher-gui \
+    ros-humble-launch-testing \
+    ros-humble-moveit \
+    ros-humble-pinocchio \
+    ros-humble-realtime-tools \
+    ros-humble-ros2-control \
+    ros-humble-ros2-control-test-assets \
+    ros-humble-ros2-controllers \
+    ros-humble-sensor-msgs \
+    ros-humble-xacro \
     && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir ~/source_code

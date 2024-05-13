@@ -1,7 +1,11 @@
 # Changelog
 
-## UNRELEASED
+## 0.1.14 - 2024-05-13
 
+Requires libfranka >= 0.13.4, requires ROS 2 Humble
+
+* add pinocchio dependency to franka_hardware and franka_gripper
+* install pinocchio in .devcontainer
 * feature: Added error recovery action to ros 2 node
 
 ## 0.1.13 - 2024-01-18
