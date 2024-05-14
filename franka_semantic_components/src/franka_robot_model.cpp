@@ -38,9 +38,11 @@ bit_cast(const From& src) noexcept {
 
 namespace franka_semantic_components {
 
-FrankaRobotModel::FrankaRobotModel(const std::string& franka_model_interface_name,
+FrankaRobotModel::FrankaRobotModel(const std::string& arm_id,
+                                   const std::string& franka_model_interface_name,
                                    const std::string& franka_state_interface_name)
     : SemanticComponentInterface(franka_model_interface_name, 2) {
+  arm_id_ = arm_id;
   interface_names_.emplace_back(franka_model_interface_name);
   interface_names_.emplace_back(franka_state_interface_name);
 }

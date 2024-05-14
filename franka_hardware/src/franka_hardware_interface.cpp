@@ -63,11 +63,11 @@ std::vector<StateInterface> FrankaHardwareInterface::export_state_interfaces() {
   }
 
   state_interfaces.emplace_back(StateInterface(
-      k_robot_name, k_robot_state_interface_name,
+      arm_id_, k_robot_state_interface_name,
       reinterpret_cast<double*>(  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
           &hw_franka_robot_state_addr_)));
   state_interfaces.emplace_back(StateInterface(
-      k_robot_name, k_robot_model_interface_name,
+      arm_id_, k_robot_model_interface_name,
       reinterpret_cast<double*>(  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
           &hw_franka_model_ptr_)));
 
@@ -271,6 +271,12 @@ CallbackReturn FrankaHardwareInterface::on_init(const hardware_interface::Hardwa
       robot_ip = info_.hardware_parameters.at("robot_ip");
     } catch (const std::out_of_range& ex) {
       RCLCPP_FATAL(getLogger(), "Parameter 'robot_ip' is not set");
+      return CallbackReturn::ERROR;
+    }
+    try {
+      arm_id_ = info_.hardware_parameters.at("arm_id");
+    } catch (const std::out_of_range& ex) {
+      RCLCPP_FATAL(getLogger(), "Parameter 'arm_id' is not set");
       return CallbackReturn::ERROR;
     }
     try {

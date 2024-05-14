@@ -70,9 +70,10 @@ class FrankaRobotModelTestFriend : public franka_semantic_components::FrankaRobo
       given_franka_semantic_model_not_initialized_when_get_zero_jacobian_called_expect_exception);
 
  public:
-  FrankaRobotModelTestFriend(const std::string& model_interface_name,
+  FrankaRobotModelTestFriend(const std::string& arm_id,
+                             const std::string& model_interface_name,
                              const std::string& model_state_name)
-      : franka_semantic_components::FrankaRobotModel(model_interface_name, model_state_name) {}
+      : franka_semantic_components::FrankaRobotModel(arm_id, model_interface_name, model_state_name) {}
   FrankaRobotModelTestFriend() = delete;
 
   virtual ~FrankaRobotModelTestFriend() = default;

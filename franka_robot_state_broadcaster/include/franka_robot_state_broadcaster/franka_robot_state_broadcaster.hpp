@@ -54,7 +54,6 @@ class FrankaRobotStateBroadcaster : public controller_interface::ControllerInter
   std::shared_ptr<ParamListener> param_listener;
   Params params;
 
-  std::string arm_id{"panda"};
   std::string state_interface_name{"robot_state"};
   std::shared_ptr<rclcpp::Publisher<franka_msgs::msg::FrankaRobotState>> franka_state_publisher;
   std::shared_ptr<realtime_tools::RealtimePublisher<franka_msgs::msg::FrankaRobotState>>

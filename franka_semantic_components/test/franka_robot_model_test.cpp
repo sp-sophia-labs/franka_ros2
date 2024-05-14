@@ -28,7 +28,8 @@ void FrankaRobotModelTest::SetUp() {
   full_interface_names.emplace_back(robot_name + "/" + franka_model_interface_name);
   full_interface_names.emplace_back(robot_name + "/" + franka_state_interface_name);
   franka_robot_model_friend =
-      std::make_unique<FrankaRobotModelTestFriend>(robot_name + "/" + franka_model_interface_name,
+      std::make_unique<FrankaRobotModelTestFriend>(robot_name,
+                                                   robot_name + "/" + franka_model_interface_name,
                                                    robot_name + "/" + franka_state_interface_name);
 }
 
