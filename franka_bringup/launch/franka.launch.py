@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 Franka Robotics GmbH
+#  Copyright (c) 2021 Franka Emika GmbH
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -18,11 +18,11 @@ from pathlib import Path
 import xacro
 
 from ament_index_python.packages import get_package_share_directory
-from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, Shutdown
+from launch import LaunchDescription, LaunchContext
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, Shutdown, OpaqueFunction
 from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
@@ -78,24 +78,19 @@ def robot_description_dependent_nodes_spawner(
         )]
 
 def generate_launch_description():
+    arm_id_parameter_name = 'arm_id'
     robot_ip_parameter_name = 'robot_ip'
     load_gripper_parameter_name = 'load_gripper'
     use_fake_hardware_parameter_name = 'use_fake_hardware'
     fake_sensor_commands_parameter_name = 'fake_sensor_commands'
     use_rviz_parameter_name = 'use_rviz'
 
+    arm_id = LaunchConfiguration(arm_id_parameter_name)
     robot_ip = LaunchConfiguration(robot_ip_parameter_name)
     load_gripper = LaunchConfiguration(load_gripper_parameter_name)
     use_fake_hardware = LaunchConfiguration(use_fake_hardware_parameter_name)
     fake_sensor_commands = LaunchConfiguration(fake_sensor_commands_parameter_name)
     use_rviz = LaunchConfiguration(use_rviz_parameter_name)
-
-    franka_xacro_file = os.path.join(get_package_share_directory('franka_description'), 'robots',
-                                     'panda_arm.urdf.xacro')
-    robot_description = Command(
-        [FindExecutable(name='xacro'), ' ', franka_xacro_file, ' hand:=', load_gripper,
-         ' robot_ip:=', robot_ip, ' use_fake_hardware:=', use_fake_hardware,
-         ' fake_sensor_commands:=', fake_sensor_commands])
 
     rviz_file = os.path.join(get_package_share_directory('franka_description'), 'rviz',
                              'visualize_franka.rviz')
@@ -135,13 +130,6 @@ def generate_launch_description():
             description='Use Franka Gripper as an end-effector, otherwise, the robot is loaded '
                         'without an end-effector.'),
         Node(
-            package='robot_state_publisher',
-            executable='robot_state_publisher',
-            name='robot_state_publisher',
-            output='screen',
-            parameters=[{'robot_description': robot_description}],
-        ),
-        Node(
             package='joint_state_publisher',
             executable='joint_state_publisher',
             name='joint_state_publisher',
@@ -171,7 +159,6 @@ def generate_launch_description():
                               use_fake_hardware_parameter_name: use_fake_hardware}.items(),
             condition=IfCondition(load_gripper)
         ),
-
         Node(package='rviz2',
              executable='rviz2',
              name='rviz2',
@@ -180,3 +167,5 @@ def generate_launch_description():
              )
 
     ])
+
+    return launch_description

@@ -86,7 +86,7 @@ class FrankaRobotModelTest : public ::testing::Test {
 
  protected:
   const size_t size = 2;
-  const std::string robot_name = "panda";
+  const std::string robot_name = "fr3";
   const std::string franka_model_interface_name = "robot_model";
   const std::string franka_state_interface_name = "robot_state";
 

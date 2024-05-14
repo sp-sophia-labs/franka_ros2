@@ -33,9 +33,11 @@ namespace franka_hardware {
 using StateInterface = hardware_interface::StateInterface;
 using CommandInterface = hardware_interface::CommandInterface;
 
-FrankaHardwareInterface::FrankaHardwareInterface(std::shared_ptr<Robot> robot)
+FrankaHardwareInterface::FrankaHardwareInterface(std::shared_ptr<Robot> robot,
+                                                 const std::string& arm_id)
     : FrankaHardwareInterface() {
   robot_ = std::move(robot);  // NOLINT(cppcoreguidelines-prefer-member-initializer)
+  arm_id_ = arm_id;
 }
 
 FrankaHardwareInterface::FrankaHardwareInterface()
