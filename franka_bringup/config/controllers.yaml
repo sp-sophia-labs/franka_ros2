@@ -101,7 +101,6 @@ joint_trajectory_controller:
 
 joint_impedance_example_controller:
   ros__parameters:
-    arm_id: panda
     k_gains:
       - 24.0
       - 24.0
@@ -120,7 +119,6 @@ joint_impedance_example_controller:
       - 0.5
 move_to_start_example_controller:
   ros__parameters:
-    arm_id: panda
     k_gains:
       - 600.0
       - 600.0

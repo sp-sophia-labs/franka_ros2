@@ -14,6 +14,8 @@
 
 
 import os
+from pathlib import Path
+import xacro
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
@@ -24,6 +26,56 @@ from launch.substitutions import Command, FindExecutable, LaunchConfiguration, P
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
+def robot_description_dependent_nodes_spawner(
+    context: LaunchContext, 
+    robot_ip, 
+    arm_id, 
+    use_fake_hardware, 
+    fake_sensor_commands, 
+    load_gripper):
+
+    robot_ip_str = context.perform_substitution(robot_ip)
+    arm_id_str = context.perform_substitution(arm_id)
+    use_fake_hardware_str = context.perform_substitution(use_fake_hardware)
+    fake_sensor_commands_str = context.perform_substitution(fake_sensor_commands)
+    load_gripper_str = context.perform_substitution(load_gripper)
+
+    franka_xacro_filepath = os.path.join(get_package_share_directory('franka_description'), 'robots', arm_id_str, arm_id_str+'.urdf.xacro')
+    robot_description = xacro.process_file(franka_xacro_filepath, 
+        mappings={
+            'ros2_control': 'true', 
+            'robot_ip': robot_ip_str, 
+            'arm_id': arm_id_str, 
+            'hand': load_gripper_str, 
+            'use_fake_hardware': use_fake_hardware_str,
+            'fake_sensor_commands': fake_sensor_commands_str,
+            }).toprettyxml(indent='  ')
+    
+    franka_controllers = PathJoinSubstitution(
+        [FindPackageShare('franka_bringup'), 'config', 'controllers.yaml',])
+
+    return [
+        Node(
+            package='robot_state_publisher',
+            executable='robot_state_publisher',
+            name='robot_state_publisher',
+            output='screen',
+            parameters=[{'robot_description': robot_description}],
+        ),
+        Node(
+            package='controller_manager',
+            executable='ros2_control_node',
+            parameters=[franka_controllers,
+                        {"robot_description": robot_description},
+                        {"arm_id": arm_id},
+                        ],
+            remappings=[('joint_states', 'franka/joint_states')],
+            output={
+                'stdout': 'screen',
+                'stderr': 'screen',
+            },
+            on_exit=Shutdown(),
+        )]
 
 def generate_launch_description():
     robot_ip_parameter_name = 'robot_ip'
@@ -48,18 +100,22 @@ def generate_launch_description():
     rviz_file = os.path.join(get_package_share_directory('franka_description'), 'rviz',
                              'visualize_franka.rviz')
 
-    franka_controllers = PathJoinSubstitution(
-        [
-            FindPackageShare('franka_bringup'),
-            'config',
-            'controllers.yaml',
-        ]
-    )
+    robot_description_dependent_nodes_spawner_opaque_function = OpaqueFunction(
+        function=robot_description_dependent_nodes_spawner, 
+        args=[
+            robot_ip, 
+            arm_id, 
+            use_fake_hardware, 
+            fake_sensor_commands, 
+            load_gripper])
 
-    return LaunchDescription([
+    launch_description = LaunchDescription([
         DeclareLaunchArgument(
             robot_ip_parameter_name,
             description='Hostname or IP address of the robot.'),
+        DeclareLaunchArgument(
+            arm_id_parameter_name,
+            description='ID of the type of arm used. Supporter values: fer, fr3, fp3'),
         DeclareLaunchArgument(
             use_rviz_parameter_name,
             default_value='false',
@@ -93,17 +149,7 @@ def generate_launch_description():
                 {'source_list': ['franka/joint_states', 'panda_gripper/joint_states'],
                  'rate': 30}],
         ),
-        Node(
-            package='controller_manager',
-            executable='ros2_control_node',
-            parameters=[{'robot_description': robot_description}, franka_controllers],
-            remappings=[('joint_states', 'franka/joint_states')],
-            output={
-                'stdout': 'screen',
-                'stderr': 'screen',
-            },
-            on_exit=Shutdown(),
-        ),
+        robot_description_dependent_nodes_spawner_opaque_function,
         Node(
             package='controller_manager',
             executable='spawner',
@@ -114,6 +160,7 @@ def generate_launch_description():
             package='controller_manager',
             executable='spawner',
             arguments=['franka_robot_state_broadcaster'],
+            parameters=[{"arm_id": arm_id}],
             output='screen',
             condition=UnlessCondition(use_fake_hardware),
         ),
@@ -123,7 +170,6 @@ def generate_launch_description():
             launch_arguments={robot_ip_parameter_name: robot_ip,
                               use_fake_hardware_parameter_name: use_fake_hardware}.items(),
             condition=IfCondition(load_gripper)
-
         ),
 
         Node(package='rviz2',
