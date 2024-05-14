@@ -134,7 +134,7 @@ def generate_launch_description():
             executable='joint_state_publisher',
             name='joint_state_publisher',
             parameters=[
-                {'source_list': ['franka/joint_states', 'panda_gripper/joint_states'],
+                {'source_list': ['franka/joint_states', 'franka_gripper/joint_states'],
                  'rate': 30}],
         ),
         robot_description_dependent_nodes_spawner_opaque_function,
