@@ -1,5 +1,9 @@
 # Changelog
 
+## UNRELEASED
+
+* feature: Added error recovery action to ros 2 node
+
 ## 0.1.13 - 2024-01-18
 
 Requires libfranka >= 0.13.2, requires ROS 2 Humble

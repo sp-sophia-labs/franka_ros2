@@ -27,6 +27,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_lifecycle/state.hpp>
 
+#include "franka_action_server.hpp"
 #include "franka_hardware/franka_executor.hpp"
 #include "franka_hardware/franka_param_service_server.hpp"
 #include "franka_hardware/robot.hpp"
@@ -80,7 +81,8 @@ class FrankaHardwareInterface : public hardware_interface::SystemInterface {
   bool initial_joint_position_update_{true};
 
   std::shared_ptr<Robot> robot_;
-  std::shared_ptr<FrankaParamServiceServer> node_;
+  std::shared_ptr<FrankaParamServiceServer> service_node_;
+  std::shared_ptr<ActionServer> action_node_;
   std::shared_ptr<FrankaExecutor> executor_;
 
   // Torque joint commands for the effort command interface

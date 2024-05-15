@@ -20,6 +20,17 @@
 #include <franka_hardware/model.hpp>
 #include <franka_hardware/robot.hpp>
 
+#include <hardware_interface/hardware_info.hpp>
+#include <hardware_interface/types/hardware_interface_return_values.hpp>
+#include <hardware_interface/types/hardware_interface_type_values.hpp>
+
+const std::string k_position_controller{"position"};
+const std::string k_velocity_controller{"velocity"};
+const std::string k_effort_controller{"effort"};
+const std::string k_joint_name{"joint"};
+const size_t k_number_of_joints{7};
+const double k_EPS{1e-5};
+
 class MockModel : public franka_hardware::Model {};
 
 class MockRobot : public franka_hardware::Robot {
@@ -70,4 +81,43 @@ class MockRobot : public franka_hardware::Robot {
               setFullCollisionBehavior,
               (const franka_msgs::srv::SetFullCollisionBehavior::Request::SharedPtr&),
               (override));
+  MOCK_METHOD(void, automaticErrorRecovery, (), (override));
 };
+
+inline auto createHardwareInfo() -> hardware_interface::HardwareInfo {
+  hardware_interface::HardwareInfo info;
+  std::unordered_map<std::string, std::string> hw_params;
+  hw_params["robot_ip"] = "dummy_ip";
+
+  info.hardware_parameters = hw_params;
+  hardware_interface::InterfaceInfo command_effort_interface, command_velocity_interface,
+      command_position_interface, effort_state_interface, position_state_interface,
+      velocity_state_interface;
+
+  effort_state_interface.name = hardware_interface::HW_IF_EFFORT;
+  position_state_interface.name = hardware_interface::HW_IF_POSITION;
+  velocity_state_interface.name = hardware_interface::HW_IF_VELOCITY;
+
+  std::vector<hardware_interface::InterfaceInfo> state_interfaces = {
+      position_state_interface, velocity_state_interface, effort_state_interface};
+
+  command_effort_interface.name = k_effort_controller;
+  command_velocity_interface.name = k_velocity_controller;
+  command_position_interface.name = k_position_controller;
+
+  for (auto i = 0U; i < k_number_of_joints; i++) {
+    hardware_interface::ComponentInfo joint;
+
+    joint.name = k_joint_name + std::to_string(i + 1);
+
+    joint.command_interfaces.push_back(command_effort_interface);
+    joint.command_interfaces.push_back(command_velocity_interface);
+    joint.command_interfaces.push_back(command_position_interface);
+
+    joint.state_interfaces = state_interfaces;
+
+    info.joints.push_back(joint);
+  }
+
+  return info;
+}

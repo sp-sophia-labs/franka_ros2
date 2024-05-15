@@ -405,4 +405,8 @@ void Robot::setFullCollisionBehavior(
       lower_force_thresholds_nominal, upper_force_thresholds_nominal);
 }
 
+void Robot::automaticErrorRecovery() {
+  robot_->automaticErrorRecovery();
+}
+
 }  // namespace franka_hardware

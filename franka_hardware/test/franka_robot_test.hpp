@@ -9,8 +9,6 @@
 
 #pragma once
 
-const double k_EPS = 1e-5;
-
 class MockActiveControl : public franka::ActiveControlBase {
  public:
   MOCK_METHOD((std::pair<franka::RobotState, franka::Duration>), readOnce, (), (override));
