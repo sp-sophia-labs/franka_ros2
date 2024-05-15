@@ -161,7 +161,7 @@ class FrankaHardwareInterface : public hardware_interface::SystemInterface {
 
   static rclcpp::Logger getLogger();
 
-  std::string arm_id_{""};
+  std::string arm_id_{"panda"};
   const std::string k_robot_state_interface_name{"robot_state"};
   const std::string k_robot_model_interface_name{"robot_model"};
 };
