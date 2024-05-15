@@ -1,3 +1,17 @@
+// Copyright (c) 2024 Franka Robotics GmbH
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include "franka_hardware/franka_action_server.hpp"
 
 namespace franka_hardware {
@@ -6,10 +20,8 @@ ActionServer::ActionServer(const rclcpp::NodeOptions& options, std::shared_ptr<R
     : rclcpp::Node("action_server", options), robot_(std::move(robot)) {
   error_recovery_action_server_ = rclcpp_action::create_server<franka_msgs::action::ErrorRecovery>(
       this, "~/error_recovery",
-      [this](auto /*uuid*/, auto /*goal*/) {
-        return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
-      },
-      [this](const auto& /*goal_handle*/) { return rclcpp_action::CancelResponse::ACCEPT; },
+      [](auto /*uuid*/, auto /*goal*/) { return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE; },
+      [](const auto& /*goal_handle*/) { return rclcpp_action::CancelResponse::ACCEPT; },
       [this](const auto& goal_handle) { errorRecoveryAction(goal_handle); });
 
   RCLCPP_INFO(get_logger(), "Action server started");
