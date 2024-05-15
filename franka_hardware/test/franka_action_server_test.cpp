@@ -7,12 +7,16 @@
 
 using namespace std::chrono_literals;
 
-class FrankaActionServerTests : public ::testing::Test {};
+class FrankaActionServerTests
+    : public ::testing::TestWithParam<
+          std::pair<std::function<void(std::shared_ptr<MockRobot> mock_robot)>,
+                    rclcpp_action::ResultCode>> {};
 
 template <typename action_client_type>
 void get_action_service_response(
     std::function<void(std::shared_ptr<MockRobot> mock_robot)> mock_function,
-    const std::string& action_name) {
+    const std::string& action_name,
+    rclcpp_action::ResultCode result_code) {
   auto mock_robot = std::make_shared<MockRobot>();
   mock_function(mock_robot);
 
@@ -39,7 +43,7 @@ void get_action_service_response(
   };
   send_goal_options.feedback_callback = [&](auto, auto) { ASSERT_TRUE(false); };
   send_goal_options.result_callback = [&](const auto& result) {
-    ASSERT_EQ(result.code, rclcpp_action::ResultCode::SUCCEEDED);
+    ASSERT_EQ(result.code, result_code);
     is_finished = true;
   };
 
@@ -65,10 +69,33 @@ void get_action_service_response(
   ASSERT_TRUE(is_finished);
 }
 
-TEST_F(FrankaActionServerTests, whenErrorRecoveryCalled_thenErrorRecoveryServiceCalled) {
+TEST_P(FrankaActionServerTests,
+       whenErrorRecoveryActionTriggered_thenErrorRecoveryServiceCallExecuted) {
+  auto param = GetParam();
+
   get_action_service_response<franka_msgs::action::ErrorRecovery>(
-      [](std::shared_ptr<MockRobot> mock_robot) {
-        EXPECT_CALL(*mock_robot, automaticErrorRecovery()).Times(1);
-      },
-      "action_server/error_recovery");
+      param.first, "action_server/error_recovery", param.second);
 }
+
+INSTANTIATE_TEST_SUITE_P(
+    FrankaActionServerTestsInstantiation,
+    FrankaActionServerTests,
+    ::testing::Values(std::make_pair(
+                          [](std::shared_ptr<MockRobot> mock_robot) {
+                            EXPECT_CALL(*mock_robot, automaticErrorRecovery()).Times(1);
+                          },
+                          rclcpp_action::ResultCode::SUCCEEDED),
+                      std::make_pair(
+                          [](std::shared_ptr<MockRobot> mock_robot) {
+                            EXPECT_CALL(*mock_robot, automaticErrorRecovery())
+                                .Times(1)
+                                .WillRepeatedly(testing::Throw(franka::CommandException("")));
+                          },
+                          rclcpp_action::ResultCode::ABORTED),
+                      std::make_pair(
+                          [](std::shared_ptr<MockRobot> mock_robot) {
+                            EXPECT_CALL(*mock_robot, automaticErrorRecovery())
+                                .Times(1)
+                                .WillRepeatedly(testing::Throw(franka::NetworkException("")));
+                          },
+                          rclcpp_action::ResultCode::ABORTED)));
