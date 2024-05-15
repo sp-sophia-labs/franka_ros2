@@ -1,8 +1,9 @@
-version: '2'
+version: '3'
 
 services:
   ros2_control:
     build: .
+    container_name: franka_ros2
     network_mode: "host"
     privileged: true
     command: /bin/bash
