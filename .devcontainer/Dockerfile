@@ -10,11 +10,11 @@ WORKDIR /workspaces
 
 RUN groupadd --gid $USER_GID $USERNAME \
     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    && mkdir -p -m 0700 /run/user/"${USER_UID}" \
-    && mkdir -p -m 0700 /run/user/"${USER_UID}"/gdm \
-    && chown user:user /run/user/"${USER_UID}" \
-    && chown user:user /workspaces \
-    && chown user:user /run/user/"${USER_UID}"/gdm \
+    && mkdir -p -m 0700 /run/$USERNAME/"${USER_UID}" \
+    && mkdir -p -m 0700 /run/$USERNAME/"${USER_UID}"/gdm \
+    && chown $USERNAME:$USERNAME /run/$USERNAME/"${USER_UID}" \
+    && chown $USERNAME:$USERNAME /workspaces \
+    && chown $USERNAME:$USERNAME /run/$USERNAME/"${USER_UID}"/gdm \
     # [Optional] Add sudo support. Omit if you don't need to install software after connecting.
     && apt-get update \
     && apt-get install -y sudo \
@@ -68,10 +68,11 @@ RUN cd ~/source_code && git clone https://github.com/frankaemika/libfranka.git \
 RUN addgroup realtime
 RUN usermod -a -G realtime $USERNAME
 
+ENV SHELL "/bin/bash"
 ENV XDG_RUNTIME_DIR=/run/user/"${USER_UID}"
 
 # set the default user to the newly created user
 USER $USERNAME
+CMD ["/bin/bash"]
 
-RUN echo "source /ros_entrypoint.sh" >>~/.bashrc
-RUN echo "export ROS_DOMAIN_ID=100" >>~/.bashrc
+RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
