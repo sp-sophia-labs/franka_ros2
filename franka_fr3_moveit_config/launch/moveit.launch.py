@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 Franka Robotics GmbH
+#  Copyright (c) 2024 Franka Robotics GmbH
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -19,13 +19,24 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import (DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription,
-                            Shutdown)
+from launch.actions import (
+    DeclareLaunchArgument,
+    ExecuteProcess,
+    IncludeLaunchDescription,
+    Shutdown
+)
 from launch.conditions import UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import (
+    Command,
+    FindExecutable,
+    LaunchConfiguration,
+    PathJoinSubstitution
+)
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
+
 import yaml
 
 
@@ -47,7 +58,8 @@ def generate_launch_description():
 
     robot_ip = LaunchConfiguration(robot_ip_parameter_name)
     use_fake_hardware = LaunchConfiguration(use_fake_hardware_parameter_name)
-    fake_sensor_commands = LaunchConfiguration(fake_sensor_commands_parameter_name)
+    fake_sensor_commands = LaunchConfiguration(
+        fake_sensor_commands_parameter_name)
 
     # Command-line arguments
 
@@ -56,27 +68,35 @@ def generate_launch_description():
     )
 
     # planning_context
-    franka_xacro_file = os.path.join(get_package_share_directory('franka_description'), 'robots',
-                                     'panda_arm.urdf.xacro')
+    franka_xacro_file = os.path.join(
+        get_package_share_directory('franka_description'),
+        'robots', 'fr3', 'fr3.urdf.xacro'
+    )
+
     robot_description_config = Command(
         [FindExecutable(name='xacro'), ' ', franka_xacro_file, ' hand:=true',
          ' robot_ip:=', robot_ip, ' use_fake_hardware:=', use_fake_hardware,
-         ' fake_sensor_commands:=', fake_sensor_commands])
+         ' fake_sensor_commands:=', fake_sensor_commands, ' ros2_control:=true'])
 
-    robot_description = {'robot_description': robot_description_config}
+    robot_description = {'robot_description': ParameterValue(
+        robot_description_config, value_type=str)}
 
-    franka_semantic_xacro_file = os.path.join(get_package_share_directory('franka_moveit_config'),
-                                              'srdf',
-                                              'panda_arm.srdf.xacro')
-    robot_description_semantic_config = Command(
-        [FindExecutable(name='xacro'), ' ', franka_semantic_xacro_file, ' hand:=true']
+    franka_semantic_xacro_file = os.path.join(
+        get_package_share_directory('franka_fr3_moveit_config'),
+        'srdf',
+        'fr3_arm.srdf.xacro'
     )
-    robot_description_semantic = {
-        'robot_description_semantic': robot_description_semantic_config
-    }
+
+    robot_description_semantic_config = Command(
+        [FindExecutable(name='xacro'), ' ',
+         franka_semantic_xacro_file, ' hand:=true']
+    )
+
+    robot_description_semantic = {'robot_description_semantic': ParameterValue(
+        robot_description_semantic_config, value_type=str)}
 
     kinematics_yaml = load_yaml(
-        'franka_moveit_config', 'config/kinematics.yaml'
+        'franka_fr3_moveit_config', 'config/kinematics.yaml'
     )
 
     # Planning Functionality
@@ -93,13 +113,13 @@ def generate_launch_description():
         }
     }
     ompl_planning_yaml = load_yaml(
-        'franka_moveit_config', 'config/ompl_planning.yaml'
+        'franka_fr3_moveit_config', 'config/ompl_planning.yaml'
     )
     ompl_planning_pipeline_config['move_group'].update(ompl_planning_yaml)
 
     # Trajectory Execution Functionality
     moveit_simple_controllers_yaml = load_yaml(
-        'franka_moveit_config', 'config/panda_controllers.yaml'
+        'franka_fr3_moveit_config', 'config/fr3_controllers.yaml'
     )
     moveit_controllers = {
         'moveit_simple_controller_manager': moveit_simple_controllers_yaml,
@@ -138,7 +158,8 @@ def generate_launch_description():
     )
 
     # RViz
-    rviz_base = os.path.join(get_package_share_directory('franka_moveit_config'), 'rviz')
+    rviz_base = os.path.join(get_package_share_directory(
+        'franka_fr3_moveit_config'), 'rviz')
     rviz_full_config = os.path.join(rviz_base, 'moveit.rviz')
 
     rviz_node = Node(
@@ -165,9 +186,9 @@ def generate_launch_description():
     )
 
     ros2_controllers_path = os.path.join(
-        get_package_share_directory('franka_moveit_config'),
+        get_package_share_directory('franka_fr3_moveit_config'),
         'config',
-        'panda_ros_controllers.yaml',
+        'fr3_ros_controllers.yaml',
     )
     ros2_control_node = Node(
         package='controller_manager',
@@ -183,10 +204,11 @@ def generate_launch_description():
 
     # Load controllers
     load_controllers = []
-    for controller in ['panda_arm_controller', 'joint_state_broadcaster']:
+    for controller in ['fr3_arm_controller', 'joint_state_broadcaster']:
         load_controllers += [
             ExecuteProcess(
-                cmd=['ros2 run controller_manager spawner {}'.format(controller)],
+                cmd=['ros2 run controller_manager spawner {}'.format(
+                    controller)],
                 shell=True,
                 output='screen',
             )
@@ -197,15 +219,15 @@ def generate_launch_description():
         executable='joint_state_publisher',
         name='joint_state_publisher',
         parameters=[
-            {'source_list': ['franka/joint_states', 'panda_gripper/joint_states'], 'rate': 30}],
+            {'source_list': ['franka/joint_states', 'fr3_gripper/joint_states'], 'rate': 30}],
     )
 
     franka_robot_state_broadcaster = Node(
-            package='controller_manager',
-            executable='spawner',
-            arguments=['franka_robot_state_broadcaster'],
-            output='screen',
-            condition=UnlessCondition(use_fake_hardware),
+        package='controller_manager',
+        executable='spawner',
+        arguments=['franka_robot_state_broadcaster'],
+        output='screen',
+        condition=UnlessCondition(use_fake_hardware),
     )
 
     robot_arg = DeclareLaunchArgument(

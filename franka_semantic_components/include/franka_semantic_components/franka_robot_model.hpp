@@ -32,8 +32,7 @@ class FrankaRobotModel
    * Creates an instance of a FrankaRobotModel.
    * @param[in] name The name of robot model state interface.
    */
-  FrankaRobotModel(const std::string& arm_id,
-                   const std::string& franka_model_interface_name,
+  FrankaRobotModel(const std::string& franka_model_interface_name,
                    const std::string& franka_state_interface_name);
   FrankaRobotModel() = delete;
 
@@ -49,10 +48,10 @@ class FrankaRobotModel
    * @see franka::Model::mass
    */
   std::array<double, 49> getMassMatrix() {
-    if (!initialized) {
+    if (!initialized_) {
       initialize();
     }
-    return robot_model->mass(*robot_state);
+    return robot_model_->mass(*robot_state_);
   }
 
   /**
@@ -66,10 +65,10 @@ class FrankaRobotModel
    * @see franka::Model::coriolis
    */
   std::array<double, 7> getCoriolisForceVector() {
-    if (!initialized) {
+    if (!initialized_) {
       initialize();
     }
-    return robot_model->coriolis(*robot_state);
+    return robot_model_->coriolis(*robot_state_);
   }
 
   /**
@@ -81,10 +80,10 @@ class FrankaRobotModel
    * @see franka::Model::gravity
    */
   std::array<double, 7> getGravityForceVector() {
-    if (!initialized) {
+    if (!initialized_) {
       initialize();
     }
-    return robot_model->gravity(*robot_state);
+    return robot_model_->gravity(*robot_state_);
   }
 
   /**
@@ -101,10 +100,10 @@ class FrankaRobotModel
    * @see franka::Model::pose
    */
   std::array<double, 16> getPoseMatrix(const franka::Frame& frame) {
-    if (!initialized) {
+    if (!initialized_) {
       initialize();
     }
-    return robot_model->pose(frame, *robot_state);
+    return robot_model_->pose(frame, *robot_state_);
   }
 
   /**
@@ -143,10 +142,10 @@ class FrankaRobotModel
    * @see franka::Model::bodyJacobian
    */
   std::array<double, 42> getBodyJacobian(const franka::Frame& frame) {
-    if (!initialized) {
+    if (!initialized_) {
       initialize();
     }
-    return robot_model->bodyJacobian(frame, *robot_state);
+    return robot_model_->bodyJacobian(frame, *robot_state_);
   }
 
   /**
@@ -183,10 +182,10 @@ class FrankaRobotModel
    * @see franka::Model::zeroJacobian
    */
   std::array<double, 42> getZeroJacobian(const franka::Frame& frame) {
-    if (!initialized) {
+    if (!initialized_) {
       initialize();
     }
-    return robot_model->zeroJacobian(frame, *robot_state);
+    return robot_model_->zeroJacobian(frame, *robot_state_);
   }
 
  protected:
@@ -197,15 +196,15 @@ class FrankaRobotModel
    */
   void initialize();
 
-  bool initialized{false};
-  franka_hardware::Model* robot_model;
-  franka::RobotState* robot_state;
-
  private:
+  bool initialized_{false};
+  franka_hardware::Model* robot_model_;
+  franka::RobotState* robot_state_;
+
   std::string arm_id_;
 
-  const std::string robot_state_interface_name_{"robot_state"};
-  const std::string robot_model_interface_name_{"robot_model"};
+  std::string franka_state_interface_name_;
+  std::string franka_model_interface_name_;
 };
 
 }  // namespace franka_semantic_components

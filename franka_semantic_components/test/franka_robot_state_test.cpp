@@ -62,7 +62,8 @@ TEST_F(FrankaRobotStateTest, validate_state_names_and_size) {
 }
 
 TEST_F(FrankaRobotStateTest, robot_state_ptr_uncasted_correctly) {
-  ASSERT_EQ(franka_state_friend->robot_state_ptr, robot_state_address);
+  auto robot_state_ptr = franka_state_friend->get_robot_state();
+  ASSERT_EQ(robot_state_ptr, robot_state_address);
   franka_state_friend->release_interfaces();
   // validate the count of state_interfaces_
   ASSERT_EQ(franka_state_friend->state_interfaces_.size(), 0u);

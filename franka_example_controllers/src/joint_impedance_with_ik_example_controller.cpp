@@ -161,6 +161,10 @@ controller_interface::return_type JointImpedanceWithIKExampleController::update(
   auto result_future_ =
       compute_ik_client_->async_send_request(service_request, response_received_callback);
 
+  if (joint_positions_desired_.empty()) {
+    return controller_interface::return_type::OK;
+  }
+
   Vector7d joint_positions_desired_eigen(joint_positions_desired_.data());
   Vector7d joint_positions_current_eigen(joint_positions_current_.data());
   Vector7d joint_velocities_current_eigen(joint_velocities_current_.data());
@@ -219,14 +223,14 @@ CallbackReturn JointImpedanceWithIKExampleController::on_configure(
   }
 
   franka_robot_model_ = std::make_unique<franka_semantic_components::FrankaRobotModel>(
-      franka_semantic_components::FrankaRobotModel(arm_id_, arm_id_ + "/" + k_robot_model_interface_name,
+      franka_semantic_components::FrankaRobotModel(arm_id_ + "/" + k_robot_model_interface_name,
                                                    arm_id_ + "/" + k_robot_state_interface_name));
 
   auto collision_client = get_node()->create_client<franka_msgs::srv::SetFullCollisionBehavior>(
-      "service_server/set_full_collision_behavior");
-  compute_ik_client_ = get_node()->create_client<moveit_msgs::srv::GetPositionIK>("compute_ik");
+      "/service_server/set_full_collision_behavior");
+  compute_ik_client_ = get_node()->create_client<moveit_msgs::srv::GetPositionIK>("/compute_ik");
 
-  while (!compute_ik_client_->wait_for_service(1ms) && !collision_client->wait_for_service(1ms)) {
+  while (!compute_ik_client_->wait_for_service(1s) || !collision_client->wait_for_service(1s)) {
     if (!rclcpp::ok()) {
       RCLCPP_ERROR(get_node()->get_logger(), "Interrupted while waiting for the service. Exiting.");
       return CallbackReturn::ERROR;

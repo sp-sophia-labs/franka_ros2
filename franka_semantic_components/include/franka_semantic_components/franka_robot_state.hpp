@@ -44,16 +44,21 @@ class FrankaRobotState
   virtual auto get_values_as_message(franka_msgs::msg::FrankaRobotState& message) -> bool;
 
  protected:
-  franka::RobotState* robot_state_ptr;
+  /**
+   * @brief Get the robot state object
+   *
+   * @return franka::RobotState
+   */
+  auto get_robot_state() -> franka::RobotState*;
 
  private:
+  franka::RobotState* robot_state_ptr;
+
   std::string robot_description_;
   std::string robot_name_;
   const std::string state_interface_name_{"robot_state"};
   bool gripper_loaded_{false};
   size_t kEndEffectorLinkIndex{8};
-  size_t kTotalAmountOfLinksWithoutEndEffector{8};
-  size_t kTotalAmountOfJoints{8};
   // TODO(yazi_ba) update stiffness frame with the user defined transformation
   size_t kStiffnessLinkIndex{8};
   std::shared_ptr<urdf::Model> model_;
@@ -73,15 +78,14 @@ class FrankaRobotState
   auto set_joints_from_urdf() -> void;
 
   /**
-   * @brief Recursively sets all child links from a link and assign them to the link_name
+   * @brief Set all child links from a link and assign them to the link_name
    *
    * @param link root link
    */
-  auto set_child_links_recursively(const std::shared_ptr<const urdf::Link>& link) -> void;
+  auto set_child_links(const std::shared_ptr<const urdf::Link>& link) -> void;
 
   /**
-   * @brief Check if gripper is loaded
-   *        Checks if the robot_name + "_hand_tcp" frame exists
+   * @brief Check if gripper is loaded and robot_name + "_hand_tcp" frame exists
    *
    * @return true if gripper is loaded
    * @return false if gripper is not loaded

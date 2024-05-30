@@ -17,23 +17,23 @@ from os import path
 from ament_index_python.packages import get_package_share_directory
 import xacro
 
-panda_xacro_file_name = path.join(get_package_share_directory('franka_moveit_config'), 'srdf',
-                                  'panda_arm.srdf.xacro')
+fr3_xacro_file_name = path.join(get_package_share_directory('franka_fr3_moveit_config'), 'srdf',
+                                'fr3_arm.srdf.xacro')
 
 
 def test_load():
-    urdf = xacro.process_file(panda_xacro_file_name).toxml()
-    assert urdf.find('panda_rightfinger') != -1
+    urdf = xacro.process_file(fr3_xacro_file_name).toxml()
+    assert urdf.find('fr3_rightfinger') != -1
 
 
 def test_load_without_gripper():
-    urdf = xacro.process_file(panda_xacro_file_name,
+    urdf = xacro.process_file(fr3_xacro_file_name,
                               mappings={'hand': 'false'}).toxml()
-    assert urdf.find('panda_rightfinger') == -1
+    assert urdf.find('fr3_rightfinger') == -1
 
 
 def test_load_with_arm_id():
-    urdf = xacro.process_file(panda_xacro_file_name,
+    urdf = xacro.process_file(fr3_xacro_file_name,
                               mappings={'arm_id': 'totally_different_arm'}).toxml()
     assert urdf.find('totally_different_arm_joint1') != -1
 
