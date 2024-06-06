@@ -20,7 +20,8 @@ void get_action_service_response(
   auto mock_robot = std::make_shared<MockRobot>();
   mock_function(mock_robot);
 
-  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot);
+  std::string arm_id{"fr3"};
+  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot, arm_id);
 
   const auto hardware_info = createHardwareInfo();
   franka_hardware_interface.on_init(hardware_info);

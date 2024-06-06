@@ -62,66 +62,66 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        panda_hand:
+        fr3_hand:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        panda_hand_tcp:
+        fr3_hand_tcp:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        panda_leftfinger:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        panda_link0:
+        fr3_leftfinger:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        panda_link1:
+        fr3_link0:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        panda_link2:
+        fr3_link1:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        panda_link3:
+        fr3_link2:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        panda_link4:
+        fr3_link3:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        panda_link5:
+        fr3_link4:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        panda_link6:
+        fr3_link5:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        panda_link7:
+        fr3_link6:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        panda_link8:
+        fr3_link7:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        panda_rightfinger:
+        fr3_link8:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        fr3_rightfinger:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -159,66 +159,66 @@ Visualization Manager:
           Expand Link Details: false
           Expand Tree: false
           Link Tree Style: Links in Alphabetic Order
-          panda_hand:
+          fr3_hand:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
-          panda_hand_tcp:
+          fr3_hand_tcp:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          panda_leftfinger:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          panda_link0:
+          fr3_leftfinger:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
-          panda_link1:
+          fr3_link0:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
-          panda_link2:
+          fr3_link1:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
-          panda_link3:
+          fr3_link2:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
-          panda_link4:
+          fr3_link3:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
-          panda_link5:
+          fr3_link4:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
-          panda_link6:
+          fr3_link5:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
-          panda_link7:
+          fr3_link6:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
-          panda_link8:
+          fr3_link7:
             Alpha: 1
             Show Axes: false
             Show Trail: false
             Value: true
-          panda_rightfinger:
+          fr3_link8:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          fr3_rightfinger:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -282,7 +282,7 @@ Visualization Manager:
         Goal State Color: 250; 128; 0
         Interactive Marker Size: 0
         Joint Violation Color: 255; 0; 255
-        Planning Group: panda_manipulator
+        Planning Group: fr3_manipulator
         Query Goal State: true
         Query Start State: false
         Show Workspace: false
@@ -313,7 +313,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: panda_link0
+    Fixed Frame: fr3_link0
     Frame Rate: 30
   Name: root
   Tools:

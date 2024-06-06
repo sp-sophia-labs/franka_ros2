@@ -17,8 +17,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-namespace franka_semantic_components {
-namespace translation {
+namespace franka_semantic_components::translation {
 
 franka_msgs::msg::Errors errorsToMessage(const franka::Errors& error) {
   franka_msgs::msg::Errors message;
@@ -336,5 +335,4 @@ auto updateTimeStamps(const builtin_interfaces::msg::Time& time_stamps,
   robot_state.inertia_total.header.stamp = time_stamps;
 }
 
-}  // namespace translation
-}  // namespace franka_semantic_components
+}  // namespace franka_semantic_components::translation

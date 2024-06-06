@@ -62,7 +62,8 @@ TEST_F(FrankaRobotStateTest, validate_state_names_and_size) {
 }
 
 TEST_F(FrankaRobotStateTest, robot_state_ptr_uncasted_correctly) {
-  ASSERT_EQ(franka_state_friend->robot_state_ptr, robot_state_address);
+  auto robot_state_ptr = franka_state_friend->get_robot_state();
+  ASSERT_EQ(robot_state_ptr, robot_state_address);
   franka_state_friend->release_interfaces();
   // validate the count of state_interfaces_
   ASSERT_EQ(franka_state_friend->state_interfaces_.size(), 0u);
@@ -89,11 +90,11 @@ TEST_F(FrankaRobotStateTest,
 TEST_F(FrankaRobotStateTest, givenInitializedRobotStateMsg_thenCorrectFrameIDs) {
   franka_state_friend->initialize_robot_state_msg(franka_robot_state_msg);
 
-  ASSERT_EQ(franka_robot_state_msg.o_t_ee.header.frame_id, "panda_link0");
-  ASSERT_EQ(franka_robot_state_msg.ee_t_k.header.frame_id, "panda_hand_tcp");
-  ASSERT_EQ(franka_robot_state_msg.measured_joint_state.name[1], "panda_joint2");
-  ASSERT_EQ(franka_robot_state_msg.k_f_ext_hat_k.header.frame_id, "panda_hand_tcp");
-  ASSERT_EQ(franka_robot_state_msg.o_f_ext_hat_k.header.frame_id, "panda_link0");
-  ASSERT_EQ(franka_robot_state_msg.o_dp_ee_c.header.frame_id, "panda_link0");
-  ASSERT_EQ(franka_robot_state_msg.o_ddp_ee_c.header.frame_id, "panda_link0");
+  ASSERT_EQ(franka_robot_state_msg.o_t_ee.header.frame_id, "fr3_link0");
+  ASSERT_EQ(franka_robot_state_msg.ee_t_k.header.frame_id, "fr3_hand_tcp");
+  ASSERT_EQ(franka_robot_state_msg.measured_joint_state.name[1], "fr3_joint2");
+  ASSERT_EQ(franka_robot_state_msg.k_f_ext_hat_k.header.frame_id, "fr3_hand_tcp");
+  ASSERT_EQ(franka_robot_state_msg.o_f_ext_hat_k.header.frame_id, "fr3_link0");
+  ASSERT_EQ(franka_robot_state_msg.o_dp_ee_c.header.frame_id, "fr3_link0");
+  ASSERT_EQ(franka_robot_state_msg.o_ddp_ee_c.header.frame_id, "fr3_link0");
 }

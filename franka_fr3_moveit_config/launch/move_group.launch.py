@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 Franka Robotics GmbH
+#  Copyright (c) 2024 Franka Robotics GmbH
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -19,28 +19,21 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import (
-    DeclareLaunchArgument,
-)
-from launch.substitutions import (
-    Command,
-    FindExecutable,
-    LaunchConfiguration,
-)
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import Command, FindExecutable, LaunchConfiguration
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
+
 import yaml
 
 
 def load_yaml(package_name, file_path):
     package_path = get_package_share_directory(package_name)
     absolute_file_path = os.path.join(package_path, file_path)
-
     try:
         with open(absolute_file_path, 'r') as file:
             return yaml.safe_load(file)
-    except (
-        EnvironmentError
-    ):  # parent of IOError, OSError *and* WindowsError where available
+    except EnvironmentError:  # parent of IOError, OSError *and* Windows Error where available
         return None
 
 
@@ -51,25 +44,26 @@ def generate_launch_description():
 
     robot_ip = LaunchConfiguration(robot_ip_parameter_name)
     use_fake_hardware = LaunchConfiguration(use_fake_hardware_parameter_name)
-    fake_sensor_commands = LaunchConfiguration(fake_sensor_commands_parameter_name)
+    fake_sensor_commands = LaunchConfiguration(
+        fake_sensor_commands_parameter_name)
 
-    # Command-line arguments
     db_arg = DeclareLaunchArgument(
         'db', default_value='False', description='Database flag'
     )
 
-    # planning_context
     franka_xacro_file = os.path.join(
         get_package_share_directory('franka_description'),
-        'robots',
-        'panda_arm.urdf.xacro',
+        'robots', 'fr3', 'fr3.urdf.xacro'
     )
-    robot_description_config = Command(
+
+    robot_description_command = Command(
         [
             FindExecutable(name='xacro'),
             ' ',
             franka_xacro_file,
+            ' ros2_control:=false',
             ' hand:=true',
+            ' arm_id:=fr3',
             ' robot_ip:=',
             robot_ip,
             ' use_fake_hardware:=',
@@ -79,22 +73,26 @@ def generate_launch_description():
         ]
     )
 
-    robot_description = {'robot_description': robot_description_config}
+    robot_description = {'robot_description': ParameterValue(
+        robot_description_command, value_type=str)}
 
     franka_semantic_xacro_file = os.path.join(
-        get_package_share_directory('franka_moveit_config'),
-        'srdf',
-        'panda_arm.srdf.xacro',
+        get_package_share_directory('franka_fr3_moveit_config'),
+        'srdf', 'fr3_arm.srdf.xacro'
     )
-    robot_description_semantic_config = Command(
-        [FindExecutable(name='xacro'), ' ', franka_semantic_xacro_file, ' hand:=true']
-    )
-    robot_description_semantic = {
-        'robot_description_semantic': robot_description_semantic_config
-    }
 
-    kinematics_yaml = load_yaml('franka_moveit_config', 'config/kinematics.yaml')
-    # Start the actual move_group node/action server
+    robot_description_semantic_command = Command(
+        [FindExecutable(name='xacro'), ' ',
+         franka_semantic_xacro_file, ' hand:=true']
+    )
+
+    # Use ParameterValue here as well if needed
+    robot_description_semantic = {'robot_description_semantic': ParameterValue(
+        robot_description_semantic_command, value_type=str)}
+
+    kinematics_yaml = load_yaml(
+        'franka_fr3_moveit_config', 'config/kinematics.yaml')
+
     run_move_group_node = Node(
         package='moveit_ros_move_group',
         executable='move_group',

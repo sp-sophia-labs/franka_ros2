@@ -30,12 +30,17 @@
 namespace franka_robot_state_broadcaster {
 class FrankaRobotStateBroadcaster : public controller_interface::ControllerInterface {
  public:
+  // NOLINTBEGIN
   explicit FrankaRobotStateBroadcaster(
       std::unique_ptr<franka_semantic_components::FrankaRobotState> franka_robot_state = nullptr)
-      : franka_robot_state(std::move(franka_robot_state)){};
-  controller_interface::InterfaceConfiguration command_interface_configuration() const override;
+      : franka_robot_state_(std::move(franka_robot_state)){};
+  // NOLINTEND
 
-  controller_interface::InterfaceConfiguration state_interface_configuration() const override;
+  [[nodiscard]] controller_interface::InterfaceConfiguration command_interface_configuration()
+      const override;
+
+  [[nodiscard]] controller_interface::InterfaceConfiguration state_interface_configuration()
+      const override;
 
   controller_interface::return_type update(const rclcpp::Time& time,
                                            const rclcpp::Duration& period) override;
@@ -50,11 +55,10 @@ class FrankaRobotStateBroadcaster : public controller_interface::ControllerInter
   controller_interface::CallbackReturn on_deactivate(
       const rclcpp_lifecycle::State& previous_state) override;
 
- protected:
+ private:
   std::shared_ptr<ParamListener> param_listener;
   Params params;
 
-  std::string arm_id{"panda"};
   std::string state_interface_name{"robot_state"};
   std::shared_ptr<rclcpp::Publisher<franka_msgs::msg::FrankaRobotState>> franka_state_publisher;
   std::shared_ptr<realtime_tools::RealtimePublisher<franka_msgs::msg::FrankaRobotState>>
@@ -85,7 +89,7 @@ class FrankaRobotStateBroadcaster : public controller_interface::ControllerInter
   const std::string kDesiredJointStates = "~/desired_joint_states";
 
   franka_msgs::msg::FrankaRobotState franka_robot_state_msg_;
-  std::unique_ptr<franka_semantic_components::FrankaRobotState> franka_robot_state;
+  std::unique_ptr<franka_semantic_components::FrankaRobotState> franka_robot_state_;
 };
 
 }  // namespace franka_robot_state_broadcaster

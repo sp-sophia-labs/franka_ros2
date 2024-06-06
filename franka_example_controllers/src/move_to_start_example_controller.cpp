@@ -74,7 +74,7 @@ CallbackReturn MoveToStartExampleController::on_init() {
   q_goal_ << 0, -M_PI_4, 0, -3 * M_PI_4, 0, M_PI_2, M_PI_4;
   try {
     auto_declare<bool>("process_finished", false);
-    auto_declare<std::string>("arm_id", "panda");
+    auto_declare<std::string>("arm_id", "fr3");
     auto_declare<std::vector<double>>("k_gains", {});
     auto_declare<std::vector<double>>("d_gains", {});
   } catch (const std::exception& e) {

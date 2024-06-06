@@ -52,7 +52,7 @@ CallbackReturn GravityCompensationExampleController::on_configure(
 
 CallbackReturn GravityCompensationExampleController::on_init() {
   try {
-    auto_declare<std::string>("arm_id", "panda");
+    auto_declare<std::string>("arm_id", "fr3");
   } catch (const std::exception& e) {
     fprintf(stderr, "Exception thrown during init stage with message: %s \n", e.what());
     return CallbackReturn::ERROR;
