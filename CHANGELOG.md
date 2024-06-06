@@ -7,6 +7,10 @@ Requires libfranka >= 0.13.4, requires ROS 2 Humble
 * add pinocchio dependency to franka_hardware and franka_gripper
 * install pinocchio in .devcontainer
 * feature: Added error recovery action to ros 2 node
+* removed: hardcoded panda robot references
+* removed: franka_description package
+* using the franka_description standalone package https://github.com/frankaemika/franka_description
+* franka_hardware prefixes the robot_state and robot model state interfaces with the read robot name from the urdf. 
 
 ## 0.1.13 - 2024-01-18
 
