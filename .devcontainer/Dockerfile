@@ -50,6 +50,7 @@ RUN apt-get update && \
     ros-humble-ros2-controllers \
     ros-humble-sensor-msgs \
     ros-humble-xacro \
+    ros-humble-ros-gz \
     && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir ~/source_code
