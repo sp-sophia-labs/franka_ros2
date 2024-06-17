@@ -44,17 +44,18 @@ def get_robot_description(context: LaunchContext, arm_id, load_gripper, franka_h
     )
 
     robot_description_config = xacro.process_file(
-        franka_xacro_file,
+        franka_xacro_file, 
         mappings={
-            'arm_id': arm_id_str,
-            'hand': load_gripper_str,
-            'ros2_control': 'true',
-            'gazebo': 'true',
+            'arm_id': arm_id_str, 
+            'hand': load_gripper_str, 
+            'ros2_control': 'true', 
+            'gazebo': 'true', 
             'ee_id': franka_hand_str
         }
     )
-
     robot_description = {'robot_description': robot_description_config.toxml()}
+    robot_description_pretty = robot_description_config.toprettyxml(indent='  ')
+    print(robot_description_pretty)
 
     robot_state_publisher = Node(
         package='robot_state_publisher',
@@ -67,6 +68,7 @@ def get_robot_description(context: LaunchContext, arm_id, load_gripper, franka_h
     )
 
     return [robot_state_publisher]
+
 
 
 def prepare_launch_description():
@@ -121,10 +123,26 @@ def prepare_launch_description():
              name='rviz2',
              arguments=['--display-config', rviz_file, '-f', 'world'],
     )
-
+    
     load_joint_state_broadcaster = ExecuteProcess(
         cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
                 'joint_state_broadcaster'],
+        output='screen'
+    )
+    
+    joint_velocity_example_controller = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
+                'joint_velocity_example_controller'],
+        output='screen'
+    )
+
+
+    load_joint_velocity_controller = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'velocity_controller'],
+        output='screen'
+    )
+    load_joint_trajectory_controller = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'joint_trajectory_controller'],
         output='screen'
     )
 
@@ -141,6 +159,12 @@ def prepare_launch_description():
                     target_action=spawn,
                     on_exit=[load_joint_state_broadcaster],
                 )
+        ),    
+        RegisterEventHandler(
+            event_handler=OnProcessExit(
+                target_action=load_joint_state_broadcaster,
+                on_exit=[joint_velocity_example_controller],
+            )
         ),
         Node(
             package='joint_state_publisher',

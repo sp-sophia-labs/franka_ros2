@@ -1,0 +1,13 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 1000  # Hz
+
+    joint_velocity_example_controller:
+      type: franka_example_controllers/JointVelocityExampleController
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+joint_velocity_example_controller:
+  ros__parameters:
+    gazebo: true

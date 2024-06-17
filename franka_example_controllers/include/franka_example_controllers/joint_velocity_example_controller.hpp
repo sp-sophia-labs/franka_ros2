@@ -40,6 +40,7 @@ class JointVelocityExampleController : public controller_interface::ControllerIn
 
  private:
   std::string arm_id_;
+  bool is_gazebo{false};
   const int num_joints = 7;
   rclcpp::Duration elapsed_time_ = rclcpp::Duration(0, 0);
 };

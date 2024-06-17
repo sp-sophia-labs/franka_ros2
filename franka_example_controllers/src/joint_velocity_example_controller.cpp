@@ -73,7 +73,7 @@ controller_interface::return_type JointVelocityExampleController::update(
 CallbackReturn JointVelocityExampleController::on_init() {
   try {
     auto_declare<std::string>("arm_id", "fr3");
-
+    auto_declare<bool>("gazebo", false);
   } catch (const std::exception& e) {
     fprintf(stderr, "Exception thrown during init stage with message: %s \n", e.what());
     return CallbackReturn::ERROR;
@@ -85,19 +85,23 @@ CallbackReturn JointVelocityExampleController::on_configure(
     const rclcpp_lifecycle::State& /*previous_state*/) {
   arm_id_ = get_node()->get_parameter("arm_id").as_string();
 
-  auto client = get_node()->create_client<franka_msgs::srv::SetFullCollisionBehavior>(
-      "service_server/set_full_collision_behavior");
-  auto request = DefaultRobotBehavior::getDefaultCollisionBehaviorRequest();
+  is_gazebo = get_node()->get_parameter("gazebo").as_bool();
 
-  auto future_result = client->async_send_request(request);
-  future_result.wait_for(1000ms);
+  if (!is_gazebo) {
+    auto client = get_node()->create_client<franka_msgs::srv::SetFullCollisionBehavior>(
+        "service_server/set_full_collision_behavior");
+    auto request = DefaultRobotBehavior::getDefaultCollisionBehaviorRequest();
 
-  auto success = future_result.get();
-  if (!success) {
-    RCLCPP_FATAL(get_node()->get_logger(), "Failed to set default collision behavior.");
-    return CallbackReturn::ERROR;
-  } else {
-    RCLCPP_INFO(get_node()->get_logger(), "Default collision behavior set.");
+    auto future_result = client->async_send_request(request);
+    future_result.wait_for(1000ms);
+
+    auto success = future_result.get();
+    if (!success) {
+      RCLCPP_FATAL(get_node()->get_logger(), "Failed to set default collision behavior.");
+      return CallbackReturn::ERROR;
+    } else {
+      RCLCPP_INFO(get_node()->get_logger(), "Default collision behavior set.");
+    }
   }
 
   return CallbackReturn::SUCCESS;
