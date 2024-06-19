@@ -21,6 +21,36 @@ If you want to start the simulation including the franka_hand:
 ros2 launch franka_gazebo_bringup visualize_franka_robot.launch.py load_gripper:=true franka_hand:='franka_hand'
 ```
 
+
+## Joint Velocity Control Example with Gazebo
+
+Before starting, be sure to build `franka_example_controllers` and `franka_description` packages.
+`franka_description` must have the minimum version of 0.3.0.
+
+```bash
+colcon build --packages-select franka_example_controllers
+```
+
+Now you can launch the velocity example with Gazebo simulator.
+
+```bash
+ros2 launch franka_gazebo_bringup gazebo_joint_velocity_controller_example.launch.py load_gripper:=true franka_hand:='franka_hand'
+```
+
+Keep in mind that the gripper joint has a bug with the joint velocity controller. 
+If you interested in controlling the gripper please use joint position interface.
+
+
+## Joint Position Control Example with Gazebo
+
+To run the joint position control example you need to have the required software listed in the joint velocity control section.
+
+Then you can run with the following command.
+
+```bash
+ros2 launch franka_gazebo_bringup gazebo_joint_position_controller_example.launch.py load_gripper:=true franka_hand:='franka_hand'
+```
+
 ## Interesting Notes
 
 If you experience that Gazebo can't find your model files, try to include the workspace. E.g.
