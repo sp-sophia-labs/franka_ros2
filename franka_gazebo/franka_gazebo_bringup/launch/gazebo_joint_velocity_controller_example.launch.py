@@ -54,8 +54,6 @@ def get_robot_description(context: LaunchContext, arm_id, load_gripper, franka_h
         }
     )
     robot_description = {'robot_description': robot_description_config.toxml()}
-    robot_description_pretty = robot_description_config.toprettyxml(indent='  ')
-    print(robot_description_pretty)
 
     robot_state_publisher = Node(
         package='robot_state_publisher',
@@ -133,16 +131,6 @@ def prepare_launch_description():
     joint_velocity_example_controller = ExecuteProcess(
         cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
                 'joint_velocity_example_controller'],
-        output='screen'
-    )
-
-
-    load_joint_velocity_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'velocity_controller'],
-        output='screen'
-    )
-    load_joint_trajectory_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'joint_trajectory_controller'],
         output='screen'
     )
 
