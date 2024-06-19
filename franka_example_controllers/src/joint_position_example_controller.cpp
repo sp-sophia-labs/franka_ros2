@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <franka_example_controllers/joint_position_example_controller.hpp>
+#include <franka_example_controllers/robot_utils.hpp>
 
 #include <cassert>
 #include <cmath>
@@ -76,8 +77,8 @@ controller_interface::return_type JointPositionExampleController::update(
 
 CallbackReturn JointPositionExampleController::on_init() {
   try {
-    auto_declare<std::string>("arm_id", "fr3");
     auto_declare<bool>("gazebo", false);
+    auto_declare<std::string>("robot_description", "");
   } catch (const std::exception& e) {
     fprintf(stderr, "Exception thrown during init stage with message: %s \n", e.what());
     return CallbackReturn::ERROR;
@@ -87,8 +88,22 @@ CallbackReturn JointPositionExampleController::on_init() {
 
 CallbackReturn JointPositionExampleController::on_configure(
     const rclcpp_lifecycle::State& /*previous_state*/) {
-  arm_id_ = get_node()->get_parameter("arm_id").as_string();
   is_gazebo_ = get_node()->get_parameter("gazebo").as_bool();
+
+  auto parameters_client =
+      std::make_shared<rclcpp::AsyncParametersClient>(get_node(), "/robot_state_publisher");
+  parameters_client->wait_for_service();
+
+  auto future = parameters_client->get_parameters({"robot_description"});
+  auto result = future.get();
+  if (!result.empty()) {
+    robot_description_ = result[0].value_to_string();
+  } else {
+    RCLCPP_ERROR(get_node()->get_logger(), "Failed to get robot_description parameter.");
+  }
+
+  arm_id_ = robot_utils::getRobotNameFromDescription(robot_description_, get_node()->get_logger());
+
   return CallbackReturn::SUCCESS;
 }
 

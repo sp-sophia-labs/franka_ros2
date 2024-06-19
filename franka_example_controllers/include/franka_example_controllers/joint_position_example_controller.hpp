@@ -43,6 +43,7 @@ class JointPositionExampleController : public controller_interface::ControllerIn
  private:
   std::string arm_id_;
   bool is_gazebo_{false};
+  std::string robot_description_;
   const int num_joints = 7;
   std::array<double, 7> initial_q_{0, 0, 0, 0, 0, 0, 0};
   const double trajectory_period{0.001};
