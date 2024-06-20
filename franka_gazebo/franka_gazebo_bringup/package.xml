@@ -11,6 +11,7 @@
   <depend>sdformat_urdf</depend>
   <depend>joint_state_publisher_gui</depend>
   <depend>franka_description</depend>
+  <depend>franka_ign_ros2_control</depend>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
