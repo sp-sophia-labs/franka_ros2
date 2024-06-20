@@ -53,14 +53,20 @@ ros2 launch franka_gazebo_bringup gazebo_joint_position_controller_example.launc
 
 ## Joint Impedance Control Example with Gazebo
 
-To run the joint impedance control example you need to install custom `ign_ros2_control` version from us.
-This will be publicly available under https://github.com/frankaemika/gz_ros2_control. This fork will enable you to send joint torques without gravity torques. You can clone this repository under your ROS 2 workspace and build it by following command:
+For running torque example. You must compile the `franka_ign_ros2_control` package located under `franka_gazebo`.
+You can compile `franka_ign_ros2_control` with the following command.
 
 ```bash
-colcon build --packages-select ign_ros2_control
+colcon build --packages-select franka_ign_ros2_control
 ```
 
-Then you can run with the following command.
+Then source your workspace.
+
+```bash
+source install/setup.sh
+```
+
+Then you can run the impedance control example.
 
 ```bash
 ros2 launch franka_gazebo_bringup gazebo_joint_impedance_controller_example.launch.py load_gripper:=true franka_hand:='franka_hand'

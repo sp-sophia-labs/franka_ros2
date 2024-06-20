@@ -233,13 +233,6 @@ bool IgnitionSystem::initSim(const ModelKDL& kdl_model,
       _ecm.CreateComponent(simjoint, ignition::gazebo::components::JointVelocity());
     }
 
-    // // Create joint force component if one doesn't exist
-    // if (!_ecm.EntityHasComponentType(
-    //         simjoint, ignition::gazebo::components::JointForce().TypeId())) {
-    //   _ecm.CreateComponent(simjoint,
-    //                        ignition::gazebo::components::JointForce());
-    // }
-
     // Create joint transmitted wrench component if one doesn't exist
     if (!_ecm.EntityHasComponentType(simjoint,
                                      gz::sim::components::JointTransmittedWrench().TypeId())) {
@@ -513,11 +506,6 @@ hardware_interface::return_type IgnitionSystem::read(const rclcpp::Time& /*time*
         this->dataPtr->ecm->Component<ignition::gazebo::components::JointVelocity>(
             this->dataPtr->joints_[i].sim_joint);
 
-    // TODO(ahcorde): Revisit this part ignitionrobotics/ign-physics#124
-    // Get the joint force
-    // const auto * jointForce =
-    //   _ecm.Component<ignition::gazebo::components::JointForce>(
-    //   this->dataPtr->sim_joints_[j]);
     // Get the joint force via joint transmitted wrench
     const auto* jointWrench =
         this->dataPtr->ecm->Component<gz::sim::components::JointTransmittedWrench>(
