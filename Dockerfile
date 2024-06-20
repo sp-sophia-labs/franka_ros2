@@ -22,6 +22,7 @@ RUN apt-get update -y && apt-get install -y --allow-unauthenticated \
     clang-format-14 \
     clang-tidy-14 \
     libeigen3-dev \
+    libignition-gazebo6-dev \
     libpoco-dev \
     python3-pip \
     ros-humble-ament-clang-format \
