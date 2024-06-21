@@ -16,18 +16,21 @@
 #define IGN_ROS2_CONTROL__IGN_ROS2_CONTROL_PLUGIN_HPP_
 
 #include <memory>
+#include <string>
 
-#include "ign_ros2_control/model_kdl.h"
 #include <ignition/gazebo/System.hh>
+#include "ign_ros2_control/model_kdl.h"
 
-namespace ign_ros2_control {
+namespace ign_ros2_control
+{
 // Forward declarations.
 class IgnitionROS2ControlPluginPrivate;
 
 class IgnitionROS2ControlPlugin : public ignition::gazebo::System,
-                                  public ignition::gazebo::ISystemConfigure,
-                                  public ignition::gazebo::ISystemPreUpdate,
-                                  public ignition::gazebo::ISystemPostUpdate {
+  public ignition::gazebo::ISystemConfigure,
+  public ignition::gazebo::ISystemPreUpdate,
+  public ignition::gazebo::ISystemPostUpdate
+{
 public:
   /// \brief Constructor
   IgnitionROS2ControlPlugin();
@@ -36,29 +39,31 @@ public:
   ~IgnitionROS2ControlPlugin() override;
 
   // Documentation inherited
-  void Configure(const ignition::gazebo::Entity &_entity,
-                 const std::shared_ptr<const sdf::Element> &_sdf,
-                 ignition::gazebo::EntityComponentManager &_ecm,
-                 ignition::gazebo::EventManager &_eventMgr) override;
+  void Configure(
+    const ignition::gazebo::Entity & _entity,
+    const std::shared_ptr<const sdf::Element> & _sdf,
+    ignition::gazebo::EntityComponentManager & _ecm,
+    ignition::gazebo::EventManager & _eventMgr) override;
 
   // Documentation inherited
-  void PreUpdate(const ignition::gazebo::UpdateInfo &_info,
-                 ignition::gazebo::EntityComponentManager &_ecm) override;
+  void PreUpdate(
+    const ignition::gazebo::UpdateInfo & _info,
+    ignition::gazebo::EntityComponentManager & _ecm) override;
 
-  void
-  PostUpdate(const ignition::gazebo::UpdateInfo &_info,
-             const ignition::gazebo::EntityComponentManager &_ecm) override;
+  void PostUpdate(
+    const ignition::gazebo::UpdateInfo & _info,
+    const ignition::gazebo::EntityComponentManager & _ecm) override;
 
 private:
   /// @brief gets the root link of the urdf model
   /// @param model urdf model of the robot
   /// @return root link of the robot
-  urdf::LinkConstSharedPtr getRootLink(const urdf::Model &model);
+  urdf::LinkConstSharedPtr getRootLink(const urdf::Model & model);
 
   /// @brief gets the tip link of the urdf model
   /// @param model urdf model of the robot
   /// @return tip link of the robot
-  std::string findTipLink(const urdf::Model &model);
+  std::string findTipLink(const urdf::Model & model);
 
   /// \brief Private data pointer.
   std::unique_ptr<IgnitionROS2ControlPluginPrivate> dataPtr;
@@ -66,6 +71,6 @@ private:
   /// \brief KDL model built from the URDF model
   ModelKDL kdl_model_;
 };
-} // namespace ign_ros2_control
+}  // namespace ign_ros2_control
 
-#endif // IGN_ROS2_CONTROL__IGN_ROS2_CONTROL_PLUGIN_HPP_
+#endif  // IGN_ROS2_CONTROL__IGN_ROS2_CONTROL_PLUGIN_HPP_

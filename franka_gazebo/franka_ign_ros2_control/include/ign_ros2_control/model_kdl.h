@@ -1,11 +1,28 @@
+// Copyright (c) 2024 Franka Robotics GmbH
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #pragma once
 
+
+#include "urdf/model.h"
+#include "franka/model.h"
+
 #include <array>
-#include <franka/model.h>
-#include <kdl/chaindynparam.hpp>
 #include <memory>
 #include <string>
-#include <urdf/model.h>
+
+#include <kdl/chaindynparam.hpp>
 
 /**
  * Calculates poses of links and dynamic properties of the robot.
@@ -29,8 +46,7 @@ public:
    * @throws std::invalid_argument when either `root` or `tip` cannot be found
    * in the URDF
    */
-  ModelKDL(const urdf::Model &model, const std::string &root,
-           const std::string &tip);
+  ModelKDL(const urdf::Model & model, const std::string & root, const std::string & tip);
 
   /**
    * Calculates the gravity vector. Unit: \f$[Nm]\f$.
@@ -44,9 +60,9 @@ public:
    *
    * @return Gravity vector.
    */
-  std::array<double, 7>
-  gravity(const std::array<double, 7> &q,
-          const std::array<double, 3> &gravity_earth) const;
+  std::array < double, 7 > gravity(
+    const std::array < double, 7 > &q,
+    const std::array < double, 3 > &gravity_earth) const;
 
 private:
   static int segment(franka::Frame frame);
