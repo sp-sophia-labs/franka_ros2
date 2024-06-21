@@ -44,7 +44,7 @@ ros2 launch franka_gazebo_bringup gazebo_joint_velocity_controller_example.launc
 ```
 
 Keep in mind that the gripper joint has a bug with the joint velocity controller. 
-If you interested in controlling the gripper please use joint position interface.
+If you are interested in controlling the gripper please use joint position interface.
 
 
 ## Joint Position Control Example with Gazebo
@@ -79,7 +79,7 @@ ros2 launch franka_gazebo_bringup gazebo_joint_impedance_controller_example.laun
 ```
 
 
-## Interesting Notes
+## Throubleshooting
 
 If you experience that Gazebo can't find your model files, try to include the workspace. E.g.
 

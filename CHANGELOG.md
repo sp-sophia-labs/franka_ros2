@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.15 - 2024-06-21
+
+Requires libfranka >= 0.13.4 and franka_description >= 0.3.0 requires ROS 2 Humble
+
+* franka\_gazebo\_bringup: Released and supports joint position, velocity and effort commands
+* franka\_ign\_ros2\_control: ROS 2 hardware interface for gazebo controller. Modified to add gravity torques for Franka robots.
+
 ## 0.1.14 - 2024-05-13
 
 Requires libfranka >= 0.13.4, requires ROS 2 Humble
