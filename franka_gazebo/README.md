@@ -1,4 +1,10 @@
 # Franka Gazebo
+
+**==Important Note:==**
+
+Minimum necessary `franka_description` version is 0.3.0.
+You can clone franka_description package from https://github.com/frankaemika/franka_description.
+
 A project integrating Franka ROS 2 with the Gazebo simulator.
 
 ## Launch RVIZ + Gazebo
