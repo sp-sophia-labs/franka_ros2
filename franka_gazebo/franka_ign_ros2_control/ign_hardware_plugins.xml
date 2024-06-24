@@ -4,7 +4,8 @@
     type="ign_ros2_control::IgnitionSystem"
     base_class_type="ign_ros2_control::IgnitionSystemInterface">
     <description>
-      GazeboPositionJoint
+      Gazebo joint interface for position, velocity and effort control.
+      The effort interface includes the gravity torques added to the commanded torques.
     </description>
   </class>
 </library>

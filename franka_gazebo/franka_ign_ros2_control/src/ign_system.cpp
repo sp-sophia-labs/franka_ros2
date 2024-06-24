@@ -552,7 +552,7 @@ hardware_interface::return_type IgnitionSystem::read(
 
     this->dataPtr->joints_[i].joint_position = jointPositions->Data()[0];
     this->dataPtr->joints_[i].joint_velocity = jointVelocity->Data()[0];
-    // this->dataPtr->joint_effort_[j] = jointForce->Data()[0];
+
     ignition::physics::Vector3d force_or_torque;
     if (this->dataPtr->joints_[i].joint_type == sdf::JointType::PRISMATIC) {
       force_or_torque = {jointWrench->Data().force().x(), jointWrench->Data().force().y(),
@@ -655,7 +655,6 @@ hardware_interface::return_type IgnitionSystem::write(
   try {
     joint_efforts = kdl_model_.gravity(q, gravity_earth);
   } catch (const std::logic_error & e) {
-    // std::cerr << "Gravity compensation error: " << e.what() << std::endl;
     RCLCPP_ERROR(this->nh_->get_logger(), "Gravity compensation error: %s", e.what());
     return hardware_interface::return_type::ERROR;
   }

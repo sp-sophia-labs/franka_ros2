@@ -76,3 +76,4 @@ USER $USERNAME
 CMD ["/bin/bash"]
 
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+RUN echo "export GZ_SIM_RESOURCE_PATH=${GZ_SIM_RESOURCE_PATH}:/workspaces/src/" >> ~/.bashrc

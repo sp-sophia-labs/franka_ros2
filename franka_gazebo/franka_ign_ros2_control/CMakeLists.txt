@@ -129,7 +129,7 @@ install(TARGETS ${PROJECT_NAME}-system
   DESTINATION lib
 )
 
-pluginlib_export_plugin_description_file(ign_ros2_control ign_hardware_plugins.xml)
+pluginlib_export_plugin_description_file(franka_ign_ros2_control ign_hardware_plugins.xml)
 
 # Setup the project
 ament_package()
