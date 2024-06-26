@@ -1,9 +1,8 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>franka_ign_ros2_control</name>
-  <version>0.1.0</version>
+  <version>0.7.9</version>
   <description>Ignition ros2_control package allows to control simulated robots using ros2_control framework. </description>
-  <author>Alejandro Hernández</author>
   <maintainer email="support@franka.de">Franka Robotics GmbH</maintainer>
 
   <license>Apache 2</license>
