@@ -19,7 +19,7 @@ find_package(rclcpp_action REQUIRED)
 find_package(franka_msgs REQUIRED)
 find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
-find_package(Franka 0.13.3 REQUIRED)
+find_package(Franka 0.13.2 REQUIRED)
 find_package(rclcpp_components REQUIRED)
 
 add_library(franka_hardware SHARED

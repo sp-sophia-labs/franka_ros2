@@ -2,19 +2,18 @@
 
 ## 0.1.15 - 2024-06-21
 
-Requires libfranka >= 0.13.4 and franka_description >= 0.3.0 requires ROS 2 Humble
+Requires libfranka >= 0.13.2 and franka_description >= 0.3.0 requires ROS 2 Humble
 
 * franka\_gazebo\_bringup: Released and supports joint position, velocity and effort commands
 * franka\_ign\_ros2\_control: ROS 2 hardware interface for gazebo controller. Modified to add gravity torques for Franka robots.
 
 ## 0.1.14 - 2024-05-13
 
-Requires libfranka >= 0.13.4, requires ROS 2 Humble
+Requires libfranka >= 0.13.2, and franka_description >= 0.2.0 requires ROS 2 Humble
 
-* add pinocchio dependency to franka_hardware and franka_gripper
-* install pinocchio in .devcontainer
-* feature: Added error recovery action to ros 2 node
-* removed: hardcoded panda robot references
+* devcontainer: install pinocchio dependency from ros-humble-pinocchio apt package
+* feature: Added error recovery action to ROS 2 node
+* removed: hard-coded panda robot references
 * removed: franka_description package
 * using the franka_description standalone package https://github.com/frankaemika/franka_description
 * franka_hardware prefixes the robot_state and robot model state interfaces with the read robot name from the urdf. 
@@ -23,8 +22,8 @@ Requires libfranka >= 0.13.4, requires ROS 2 Humble
 
 Requires libfranka >= 0.13.2, requires ROS 2 Humble
 
-* update libfranka dependency on devcontainer to 0.13.3(requires system image 5.5.0)
-* fix .devcontainer typo
+* update libfranka dependency in devcontainer to 0.13.3(requires system image 5.5.0)
+* fix devcontainer typo
 
 ## 0.1.12 - 2024-01-12
 
