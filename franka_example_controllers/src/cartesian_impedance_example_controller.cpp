@@ -1,5 +1,5 @@
 #include "franka_example_controllers/cartesian_impedance_example_controller.hpp"
-#include "franka_example_controllers/pseudo_inverse.hpp"
+#include "franka_example_controllers/pseudo_inversion.hpp"
 
 namespace franka_example_controllers
 {
@@ -9,7 +9,7 @@ namespace franka_example_controllers
     // Equilibrium pose subscription
     sub_equilibrium_pose_ = get_node()->create_subscription<geometry_msgs::msg::PoseStamped>(
       "equilibrium_pose", 20, 
-      std::bind(&FSMImpedanceController::equilibriumPoseCallback, this, std::placeholders::_1));
+      std::bind(&CartesianImpedanceExampleController::equilibriumPoseCallback, this, std::placeholders::_1));
 
     position_d_.setZero();
     orientation_d_.coeffs() << 0.0, 0.0, 0.0, 1.0;
@@ -67,15 +67,12 @@ namespace franka_example_controllers
     return CallbackReturn::SUCCESS;
   }
 
-  // In ROS 2, the equivalent functionality to the starting() method in ROS 1 is typically handled in the on_activate() method. 
-  // The on_activate() method is called when a controller is activated, and this is a suitable place to perform actions 
-  // that need to occur just before the controller starts updating its state.
+
   CallbackReturn CartesianImpedanceExampleController::on_activate(const rclcpp_lifecycle::State& /*previous_state*/) 
   {
     franka_robot_state_->assign_loaned_state_interfaces(state_interfaces_);
     franka_robot_model_->assign_loaned_state_interfaces(state_interfaces_);
 
-    // Starting()
     // compute initial velocity with jacobian and set x_attractor and q_d_nullspace
     init_robot_state_ = franka_msgs::msg::FrankaRobotState();
     franka_robot_state_->get_values_as_message(init_robot_state_);
@@ -163,17 +160,9 @@ namespace franka_example_controllers
     Eigen::VectorXd tau_task(7), tau_nullspace(7), tau_d(7);
 
     // pseudoinverse for nullspace handling
-    // kinematic pseuoinverse
     Eigen::MatrixXd jacobian_transpose_pinv;
+    pseudoInverse(jacobian.transpose(), jacobian_transpose_pinv);
 
-    try {
-      // Release Build : colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
-      pseudoInverse(jacobian.transpose(), jacobian_transpose_pinv);
-
-    } catch (const std::exception& e) {
-      std::cerr << "Error during pseudo-inverse computation: " << e.what() << std::endl;
-    }
-    
     // Cartesian PD control with damping ratio = 1
     tau_task << jacobian.transpose() * 
                 (-cartesian_stiffness_ * error - cartesian_damping_ * (jacobian * dq));
