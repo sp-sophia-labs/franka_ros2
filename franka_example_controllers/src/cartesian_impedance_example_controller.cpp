@@ -1,8 +1,6 @@
 #include "franka_example_controllers/cartesian_impedance_example_controller.hpp"
 #include "franka_example_controllers/pseudo_inversion.hpp"
 
-const Eigen::MatrixXd IDENTITY = Eigen::MatrixXd::Identity(6, 6);
-
 namespace franka_example_controllers {
 
 CallbackReturn CartesianImpedanceExampleController::on_init() {
