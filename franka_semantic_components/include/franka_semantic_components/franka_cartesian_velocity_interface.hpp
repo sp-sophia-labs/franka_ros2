@@ -48,9 +48,8 @@ class FrankaCartesianVelocityInterface : public FrankaSemanticComponentInterface
   FrankaCartesianVelocityInterface(const FrankaCartesianVelocityInterface&) = delete;
   FrankaCartesianVelocityInterface& operator=(FrankaCartesianVelocityInterface const&) = delete;
   FrankaCartesianVelocityInterface(FrankaCartesianVelocityInterface&&) = default;
-  FrankaCartesianVelocityInterface& operator=(FrankaCartesianVelocityInterface&&) = default;
 
-  virtual ~FrankaCartesianVelocityInterface() = default;
+  ~FrankaCartesianVelocityInterface() override = default;
 
   /**
    * @param twist_command The velocity command in Cartesian coordinates
@@ -92,7 +91,6 @@ class FrankaCartesianVelocityInterface : public FrankaSemanticComponentInterface
   const std::array<std::string, 6> hw_cartesian_velocities_names_{"vx", "vy", "vz",
                                                                   "wx", "wy", "wz"};
   const std::array<std::string, 2> hw_elbow_command_names_{"joint_3_position", "joint_4_sign"};
-  const size_t state_interface_size_{0};
   const size_t full_command_interface_size_{8};
   bool command_elbow_active_;
 

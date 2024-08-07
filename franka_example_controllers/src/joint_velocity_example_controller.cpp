@@ -14,6 +14,7 @@
 
 #include <franka_example_controllers/default_robot_behavior_utils.hpp>
 #include <franka_example_controllers/joint_velocity_example_controller.hpp>
+#include <franka_example_controllers/robot_utils.hpp>
 
 #include <cassert>
 #include <cmath>
@@ -72,8 +73,8 @@ controller_interface::return_type JointVelocityExampleController::update(
 
 CallbackReturn JointVelocityExampleController::on_init() {
   try {
-    auto_declare<std::string>("arm_id", "panda");
-
+    auto_declare<bool>("gazebo", false);
+    auto_declare<std::string>("robot_description", "");
   } catch (const std::exception& e) {
     fprintf(stderr, "Exception thrown during init stage with message: %s \n", e.what());
     return CallbackReturn::ERROR;
@@ -83,21 +84,37 @@ CallbackReturn JointVelocityExampleController::on_init() {
 
 CallbackReturn JointVelocityExampleController::on_configure(
     const rclcpp_lifecycle::State& /*previous_state*/) {
-  arm_id_ = get_node()->get_parameter("arm_id").as_string();
+  is_gazebo = get_node()->get_parameter("gazebo").as_bool();
 
-  auto client = get_node()->create_client<franka_msgs::srv::SetFullCollisionBehavior>(
-      "service_server/set_full_collision_behavior");
-  auto request = DefaultRobotBehavior::getDefaultCollisionBehaviorRequest();
+  auto parameters_client =
+      std::make_shared<rclcpp::AsyncParametersClient>(get_node(), "/robot_state_publisher");
+  parameters_client->wait_for_service();
 
-  auto future_result = client->async_send_request(request);
-  future_result.wait_for(1000ms);
-
-  auto success = future_result.get();
-  if (!success) {
-    RCLCPP_FATAL(get_node()->get_logger(), "Failed to set default collision behavior.");
-    return CallbackReturn::ERROR;
+  auto future = parameters_client->get_parameters({"robot_description"});
+  auto result = future.get();
+  if (!result.empty()) {
+    robot_description_ = result[0].value_to_string();
   } else {
-    RCLCPP_INFO(get_node()->get_logger(), "Default collision behavior set.");
+    RCLCPP_ERROR(get_node()->get_logger(), "Failed to get robot_description parameter.");
+  }
+
+  arm_id_ = robot_utils::getRobotNameFromDescription(robot_description_, get_node()->get_logger());
+
+  if (!is_gazebo) {
+    auto client = get_node()->create_client<franka_msgs::srv::SetFullCollisionBehavior>(
+        "service_server/set_full_collision_behavior");
+    auto request = DefaultRobotBehavior::getDefaultCollisionBehaviorRequest();
+
+    auto future_result = client->async_send_request(request);
+    future_result.wait_for(1000ms);
+
+    auto success = future_result.get();
+    if (!success) {
+      RCLCPP_FATAL(get_node()->get_logger(), "Failed to set default collision behavior.");
+      return CallbackReturn::ERROR;
+    } else {
+      RCLCPP_INFO(get_node()->get_logger(), "Default collision behavior set.");
+    }
   }
 
   return CallbackReturn::SUCCESS;

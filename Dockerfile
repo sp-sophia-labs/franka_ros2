@@ -21,26 +21,29 @@ RUN apt-get update -y && apt-get install -y --allow-unauthenticated \
     clang-14 \
     clang-format-14 \
     clang-tidy-14 \
-    python3-pip \
-    libpoco-dev \
     libeigen3-dev \
-    ros-humble-control-msgs \
-    ros-humble-xacro \
-    ros-humble-ament-cmake-clang-format \
+    libignition-gazebo6-dev \
+    libpoco-dev \
+    python3-pip \
     ros-humble-ament-clang-format \
-    ros-humble-ament-flake8 \
+    ros-humble-ament-cmake-clang-format \
     ros-humble-ament-cmake-clang-tidy \
+    ros-humble-ament-flake8 \
     ros-humble-angles \
-    ros-humble-ros2-control \
-    ros-humble-realtime-tools \
-    ros-humble-control-toolbox \    
-    ros-humble-controller-manager \
-    ros-humble-hardware-interface \
-    ros-humble-generate-parameter-library \
+    ros-humble-control-msgs \
+    ros-humble-control-toolbox \
     ros-humble-controller-interface \
-    ros-humble-ros2-control-test-assets \
     ros-humble-controller-manager \
+    ros-humble-generate-parameter-library \
+    ros-humble-hardware-interface \
+    ros-humble-hardware-interface-testing \
+    ros-humble-launch-testing \
     ros-humble-moveit \
+    ros-humble-pinocchio \
+    ros-humble-realtime-tools \
+    ros-humble-ros2-control \
+    ros-humble-ros2-control-test-assets \
+    ros-humble-xacro \
     && rm -rf /var/lib/apt/lists/*
 
 RUN python3 -m pip install -U \
@@ -52,10 +55,7 @@ RUN python3 -m pip install -U \
     flake8-deprecated \
     flake8-docstrings \
     flake8-import-order \
-    flake8-quotes \
-    pytest-repeat \
-    pytest-rerunfailures \
-    pytest
+    flake8-quotes
 
 RUN mkdir ~/source_code    
 RUN cd ~/source_code && git clone https://github.com/frankaemika/libfranka.git \

@@ -33,9 +33,11 @@ namespace franka_hardware {
 using StateInterface = hardware_interface::StateInterface;
 using CommandInterface = hardware_interface::CommandInterface;
 
-FrankaHardwareInterface::FrankaHardwareInterface(std::shared_ptr<Robot> robot)
+FrankaHardwareInterface::FrankaHardwareInterface(std::shared_ptr<Robot> robot,
+                                                 const std::string& arm_id)
     : FrankaHardwareInterface() {
   robot_ = std::move(robot);  // NOLINT(cppcoreguidelines-prefer-member-initializer)
+  arm_id_ = arm_id;
 }
 
 FrankaHardwareInterface::FrankaHardwareInterface()
@@ -63,11 +65,11 @@ std::vector<StateInterface> FrankaHardwareInterface::export_state_interfaces() {
   }
 
   state_interfaces.emplace_back(StateInterface(
-      k_robot_name, k_robot_state_interface_name,
+      arm_id_, k_robot_state_interface_name,
       reinterpret_cast<double*>(  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
           &hw_franka_robot_state_addr_)));
   state_interfaces.emplace_back(StateInterface(
-      k_robot_name, k_robot_model_interface_name,
+      arm_id_, k_robot_model_interface_name,
       reinterpret_cast<double*>(  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
           &hw_franka_model_ptr_)));
 
@@ -274,6 +276,16 @@ CallbackReturn FrankaHardwareInterface::on_init(const hardware_interface::Hardwa
       return CallbackReturn::ERROR;
     }
     try {
+      arm_id_ = info_.hardware_parameters.at("arm_id");
+    } catch (const std::out_of_range& ex) {
+      RCLCPP_WARN(getLogger(), "Parameter 'arm_id' is not set.");
+      RCLCPP_WARN(getLogger(),
+                  "Deprecation Warning: In the next release, 'arm_id' should be set in the URDF. "
+                  "Using 'panda' as default 'arm_id' will not be supported."
+                  "Please use the latest franka_description package from: "
+                  "https://github.com/frankaemika/franka_description");
+    }
+    try {
       RCLCPP_INFO(getLogger(), "Connecting to robot at \"%s\" ...", robot_ip.c_str());
       robot_ = std::make_shared<Robot>(robot_ip, getLogger());
     } catch (const franka::Exception& e) {
@@ -284,9 +296,13 @@ CallbackReturn FrankaHardwareInterface::on_init(const hardware_interface::Hardwa
     RCLCPP_INFO(getLogger(), "Successfully connected to robot");
   }
 
-  node_ = std::make_shared<FrankaParamServiceServer>(rclcpp::NodeOptions(), robot_);
+  service_node_ = std::make_shared<FrankaParamServiceServer>(rclcpp::NodeOptions(), robot_);
   executor_ = std::make_shared<FrankaExecutor>();
-  executor_->add_node(node_);
+  executor_->add_node(service_node_);
+
+  action_node_ = std::make_shared<ActionServer>(rclcpp::NodeOptions(), robot_);
+  executor_->add_node(action_node_);
+
   return CallbackReturn::SUCCESS;
 }
 

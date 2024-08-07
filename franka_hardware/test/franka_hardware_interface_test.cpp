@@ -36,54 +36,9 @@
 
 #include "test_utils.hpp"
 
-const std::string k_position_controller{"position"};
-const std::string k_velocity_controller{"velocity"};
-const std::string k_effort_controller{"effort"};
-const std::string k_joint_name{"joint"};
-const size_t k_number_of_joints{7};
-const double k_EPS{1e-5};
-
 using namespace std::chrono_literals;
 
 class FrankaHardwareInterfaceTest : public ::testing::TestWithParam<std::string> {};
-
-auto createHardwareInfo() -> hardware_interface::HardwareInfo {
-  hardware_interface::HardwareInfo info;
-  std::unordered_map<std::string, std::string> hw_params;
-  hw_params["robot_ip"] = "dummy_ip";
-
-  info.hardware_parameters = hw_params;
-  hardware_interface::InterfaceInfo command_effort_interface, command_velocity_interface,
-      command_position_interface, effort_state_interface, position_state_interface,
-      velocity_state_interface;
-
-  effort_state_interface.name = hardware_interface::HW_IF_EFFORT;
-  position_state_interface.name = hardware_interface::HW_IF_POSITION;
-  velocity_state_interface.name = hardware_interface::HW_IF_VELOCITY;
-
-  std::vector<hardware_interface::InterfaceInfo> state_interfaces = {
-      position_state_interface, velocity_state_interface, effort_state_interface};
-
-  command_effort_interface.name = k_effort_controller;
-  command_velocity_interface.name = k_velocity_controller;
-  command_position_interface.name = k_position_controller;
-
-  for (auto i = 0U; i < k_number_of_joints; i++) {
-    hardware_interface::ComponentInfo joint;
-
-    joint.name = k_joint_name + std::to_string(i + 1);
-
-    joint.command_interfaces.push_back(command_effort_interface);
-    joint.command_interfaces.push_back(command_velocity_interface);
-    joint.command_interfaces.push_back(command_position_interface);
-
-    joint.state_interfaces = state_interfaces;
-
-    info.joints.push_back(joint);
-  }
-
-  return info;
-}
 
 template <typename service_client_type,
           typename service_request_type,
@@ -95,7 +50,8 @@ void get_param_service_response(
   auto mock_robot = std::make_shared<MockRobot>();
   mock_function(mock_robot);
 
-  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot);
+  std::string arm_id{"fr3"};
+  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot, arm_id);
 
   const auto hardware_info = createHardwareInfo();
   franka_hardware_interface.on_init(hardware_info);
@@ -124,7 +80,8 @@ void get_param_service_response(
 TEST_F(FrankaHardwareInterfaceTest, when_on_init_called_expect_success) {
   auto mock_robot = std::make_shared<MockRobot>();
   const hardware_interface::HardwareInfo info = createHardwareInfo();
-  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot);
+  std::string arm_id{"fr3"};
+  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot, arm_id);
   auto return_type = franka_hardware_interface.on_init(info);
 
   ASSERT_EQ(return_type,
@@ -141,7 +98,8 @@ TEST_F(FrankaHardwareInterfaceTest,
   EXPECT_CALL(*mock_robot, readOnce()).WillOnce(testing::Return(robot_state));
   EXPECT_CALL(*mock_robot, getModel()).WillOnce(testing::Return(model_address));
 
-  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot);
+  std::string arm_id{"fr3"};
+  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot, arm_id);
 
   auto time = rclcpp::Time(0, 0);
   auto duration = rclcpp::Duration(0, 0);
@@ -164,7 +122,8 @@ TEST_F(
   EXPECT_CALL(*mock_robot, getModel()).WillOnce(testing::Return(model_address));
   EXPECT_CALL(*mock_robot, readOnce()).WillOnce(testing::Return(robot_state));
 
-  franka_hardware::FrankaHardwareInterface franka_hardware_interface(std::move(mock_robot));
+  std::string arm_id{"fr3"};
+  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot, arm_id);
 
   const auto hardware_info = createHardwareInfo();
   franka_hardware_interface.on_init(hardware_info);
@@ -210,7 +169,8 @@ TEST_F(
   EXPECT_CALL(*mock_robot, readOnce()).WillOnce(testing::Return(robot_state));
 
   EXPECT_CALL(*mock_robot, getModel()).WillOnce(testing::Return(model_address));
-  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot);
+  std::string arm_id{"fr3"};
+  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot, arm_id);
 
   const auto hardware_info = createHardwareInfo();
   franka_hardware_interface.on_init(hardware_info);
@@ -220,8 +180,8 @@ TEST_F(
   ASSERT_EQ(return_type, hardware_interface::return_type::OK);
   auto states = franka_hardware_interface.export_state_interfaces();
   ASSERT_EQ(states[state_interface_size - 19].get_name(),
-            "panda/robot_model");  // Last state interface is the robot model state +
-                                   // initial_pose(16) + inital_elbow(2) + initial position(7)
+            "fr3/robot_model");  // Last state interface is the robot model state +
+                                 // initial_pose(16) + inital_elbow(2) + initial position(7)
   EXPECT_NEAR(states[state_interface_size - 19]
                   .get_value(),  // initial_pose(16), initial_pose(2) + initial position(7)
               *reinterpret_cast<double*>(&model_address),
@@ -243,7 +203,8 @@ TEST_F(
   MockModel* model_address = &mock_model;
   EXPECT_CALL(*mock_robot, readOnce()).WillOnce(testing::Return(robot_state));
   EXPECT_CALL(*mock_robot, getModel()).WillOnce(testing::Return(model_address));
-  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot);
+  std::string arm_id{"fr3"};
+  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot, arm_id);
 
   const auto hardware_info = createHardwareInfo();
   franka_hardware_interface.on_init(hardware_info);
@@ -253,7 +214,7 @@ TEST_F(
   ASSERT_EQ(return_type, hardware_interface::return_type::OK);
   auto states = franka_hardware_interface.export_state_interfaces();
   ASSERT_EQ(states[state_interface_size - 2].get_name(),
-            "panda/robot_state");  // Last state interface is the robot model state
+            "fr3/robot_state");  // Last state interface is the robot model state
   EXPECT_NEAR(states[state_interface_size - 2].get_value(),
               *reinterpret_cast<double*>(&robot_state_address),
               k_EPS);  // testing that the casted robot state ptr
@@ -265,7 +226,8 @@ TEST_P(FrankaHardwareInterfaceTest,
   std::string command_interface = GetParam();
 
   auto mock_robot = std::make_shared<MockRobot>();
-  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot);
+  std::string arm_id{"fr3"};
+  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot, arm_id);
 
   const auto hardware_info = createHardwareInfo();
   franka_hardware_interface.on_init(hardware_info);
@@ -286,7 +248,8 @@ TEST_P(
   std::string command_interface = GetParam();
 
   auto mock_robot = std::make_shared<MockRobot>();
-  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot);
+  std::string arm_id{"fr3"};
+  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot, arm_id);
 
   const auto hardware_info = createHardwareInfo();
   franka_hardware_interface.on_init(hardware_info);
@@ -307,7 +270,8 @@ TEST_P(FrankaHardwareInterfaceTest,
   std::string command_interface = GetParam();
 
   auto mock_robot = std::make_shared<MockRobot>();
-  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot);
+  std::string arm_id{"fr3"};
+  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot, arm_id);
 
   const auto hardware_info = createHardwareInfo();
   franka_hardware_interface.on_init(hardware_info);
@@ -330,7 +294,8 @@ TEST_P(
   std::string command_interface = GetParam();
 
   auto mock_robot = std::make_shared<MockRobot>();
-  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot);
+  std::string arm_id{"fr3"};
+  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot, arm_id);
 
   const auto hardware_info = createHardwareInfo();
   franka_hardware_interface.on_init(hardware_info);
@@ -354,7 +319,8 @@ TEST_P(FrankaHardwareInterfaceTest, when_write_called_expect_ok) {
   auto mock_robot = std::make_shared<MockRobot>();
   EXPECT_CALL(*mock_robot, writeOnce(std::array<double, 7>{}));
 
-  franka_hardware::FrankaHardwareInterface franka_hardware_interface(std::move(mock_robot));
+  std::string arm_id{"fr3"};
+  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot, arm_id);
 
   const auto hardware_info = createHardwareInfo();
   franka_hardware_interface.on_init(hardware_info);
@@ -390,7 +356,8 @@ TEST_F(FrankaHardwareInterfaceTest, when_write_called_with_inifite_command_expec
   EXPECT_CALL(*mock_robot, readOnce()).WillOnce(testing::Return(robot_state));
   EXPECT_CALL(*mock_robot, writeOnce(std::array<double, 7>{})).Times(0);
 
-  franka_hardware::FrankaHardwareInterface franka_hardware_interface(std::move(mock_robot));
+  std::string arm_id{"fr3"};
+  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot, arm_id);
 
   const auto hardware_info = createHardwareInfo();
   franka_hardware_interface.on_init(hardware_info);
@@ -423,7 +390,8 @@ TEST_F(
   auto mock_robot = std::make_shared<MockRobot>();
   EXPECT_CALL(*mock_robot, writeOnce(std::array<double, 7>{})).Times(0);
 
-  franka_hardware::FrankaHardwareInterface franka_hardware_interface(std::move(mock_robot));
+  std::string arm_id{"fr3"};
+  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot, arm_id);
 
   const auto hardware_info = createHardwareInfo();
   franka_hardware_interface.on_init(hardware_info);
@@ -458,7 +426,8 @@ TEST_F(FrankaHardwareInterfaceTest, when_on_activate_called_expect_success) {
   EXPECT_CALL(*mock_robot, readOnce()).WillOnce(testing::Return(robot_state));
   EXPECT_CALL(*mock_robot, getModel()).WillOnce(testing::Return(model_address));
 
-  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot);
+  std::string arm_id{"fr3"};
+  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot, arm_id);
 
   ASSERT_EQ(franka_hardware_interface.on_activate(rclcpp_lifecycle::State()),
             rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS);
@@ -470,7 +439,8 @@ TEST_F(FrankaHardwareInterfaceTest, when_on_deactivate_called_expect_success) {
   auto mock_robot = std::make_shared<MockRobot>();
   EXPECT_CALL(*mock_robot, stopRobot());
 
-  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot);
+  std::string arm_id{"fr3"};
+  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot, arm_id);
 
   ASSERT_EQ(franka_hardware_interface.on_deactivate(rclcpp_lifecycle::State()),
             rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS);
@@ -490,7 +460,8 @@ TEST_P(FrankaHardwareInterfaceTest,
     EXPECT_CALL(*mock_robot, initializeJointPositionInterface());
   }
 
-  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot);
+  std::string arm_id{"fr3"};
+  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot, arm_id);
 
   const auto hardware_info = createHardwareInfo();
   franka_hardware_interface.on_init(hardware_info);
@@ -517,7 +488,8 @@ TEST_P(FrankaHardwareInterfaceTest,
   auto mock_robot = std::make_shared<MockRobot>();
   EXPECT_CALL(*mock_robot, stopRobot()).Times(2);
 
-  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot);
+  std::string arm_id{"fr3"};
+  franka_hardware::FrankaHardwareInterface franka_hardware_interface(mock_robot, arm_id);
 
   const auto hardware_info = createHardwareInfo();
   franka_hardware_interface.on_init(hardware_info);

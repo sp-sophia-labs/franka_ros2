@@ -28,6 +28,7 @@
 #include <franka_msgs/srv/set_tcp_frame.hpp>
 
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp_action/rclcpp_action.hpp>
 
 /**
  * Node implementing the service server

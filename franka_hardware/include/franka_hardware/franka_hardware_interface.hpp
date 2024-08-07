@@ -27,6 +27,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_lifecycle/state.hpp>
 
+#include "franka_action_server.hpp"
 #include "franka_hardware/franka_executor.hpp"
 #include "franka_hardware/franka_param_service_server.hpp"
 #include "franka_hardware/robot.hpp"
@@ -37,7 +38,7 @@ namespace franka_hardware {
 
 class FrankaHardwareInterface : public hardware_interface::SystemInterface {
  public:
-  explicit FrankaHardwareInterface(std::shared_ptr<Robot> robot);
+  explicit FrankaHardwareInterface(std::shared_ptr<Robot> robot, const std::string& arm_id);
   FrankaHardwareInterface();
   FrankaHardwareInterface(const FrankaHardwareInterface&) = delete;
   FrankaHardwareInterface& operator=(const FrankaHardwareInterface& other) = delete;
@@ -80,7 +81,8 @@ class FrankaHardwareInterface : public hardware_interface::SystemInterface {
   bool initial_joint_position_update_{true};
 
   std::shared_ptr<Robot> robot_;
-  std::shared_ptr<FrankaParamServiceServer> node_;
+  std::shared_ptr<FrankaParamServiceServer> service_node_;
+  std::shared_ptr<ActionServer> action_node_;
   std::shared_ptr<FrankaExecutor> executor_;
 
   // Torque joint commands for the effort command interface
@@ -159,7 +161,7 @@ class FrankaHardwareInterface : public hardware_interface::SystemInterface {
 
   static rclcpp::Logger getLogger();
 
-  const std::string k_robot_name{"panda"};
+  std::string arm_id_{"panda"};
   const std::string k_robot_state_interface_name{"robot_state"};
   const std::string k_robot_model_interface_name{"robot_model"};
 };

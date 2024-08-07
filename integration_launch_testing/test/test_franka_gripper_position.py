@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 Franka Robotics GmbH
+#  Copyright (c) 2024 Franka Robotics GmbH
 #
 #  Licensed under the Apache License, Version 2.0 (the 'License');
 #  you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ def generate_test_description():
                 ),
                 DeclareLaunchArgument(
                     arm_parameter_name,
-                    default_value='panda',
+                    default_value='fr3',
                     description=(
                         'Name of the arm in the URDF file. This is used to generate the joint '
                         'names of the gripper.'
@@ -144,13 +144,13 @@ class TestStartJointPositions(unittest.TestCase):
 
         sub = self.link_node.create_subscription(
             sensor_msgs.msg.JointState,
-            '/panda_gripper/joint_states',
+            '/fr3_gripper/joint_states',
             _service_callback,
             10,
         )
 
         action_client = ActionClient(
-            self.link_node, action_name='/panda_gripper/move', action_type=Move
+            self.link_node, action_name='/fr3_gripper/move', action_type=Move
         )
 
         while not action_client.wait_for_server(timeout_sec=1.0):

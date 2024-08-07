@@ -243,6 +243,14 @@ class Robot {
   virtual void setFullCollisionBehavior(
       const franka_msgs::srv::SetFullCollisionBehavior::Request::SharedPtr& req);
 
+  /**
+   * Starts an automatic recovery process.
+   *
+   * @throw CommandException if the Control reports an error.
+   * @throw NetworkException if the connection is lost, e.g. after a timeout.
+   */
+  virtual void automaticErrorRecovery();
+
  protected:
   Robot() = default;
 

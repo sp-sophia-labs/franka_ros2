@@ -15,6 +15,7 @@
 #include "franka_semantic_components/franka_robot_state.hpp"
 
 #include <cstring>
+#include <stack>
 
 #include "rclcpp/logging.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
@@ -31,11 +32,11 @@ const std::string kTCPFrameName = "_hand_tcp";
 
 // Example implementation of bit_cast: https://en.cppreference.com/w/cpp/numeric/bit_cast
 template <class To, class From>
-std::enable_if_t<sizeof(To) == sizeof(From) && std::is_trivially_copyable_v<From> &&
-                     std::is_trivially_copyable_v<To>,
+std::enable_if_t<sizeof(To) == sizeof(From) && std::is_trivially_copyable<From>::value &&
+                     std::is_trivially_copyable<To>::value,
                  To>
 bit_cast(const From& src) noexcept {
-  static_assert(std::is_trivially_constructible_v<To>,
+  static_assert(std::is_trivially_constructible<To>::value,
                 "This implementation additionally requires "
                 "destination type to be trivially constructible");
 
@@ -50,13 +51,14 @@ namespace franka_semantic_components {
 
 FrankaRobotState::FrankaRobotState(const std::string& name, const std::string& robot_description)
     : SemanticComponentInterface(name, 1), model_(std::make_shared<urdf::Model>()) {
-  interface_names_.emplace_back(name_);
   robot_description_ = robot_description;
   if (!model_->initString(robot_description_)) {
     throw std::runtime_error("Failed to parse URDF.");
   }
 
   robot_name_ = get_robot_name_from_urdf();
+  interface_names_.emplace_back(robot_name_ + "/" + state_interface_name_);
+
   gripper_loaded_ = is_gripper_loaded();
 
   set_links_from_urdf();
@@ -91,18 +93,29 @@ auto FrankaRobotState::get_robot_name_from_urdf() -> std::string {
   return model_->name_;
 }
 
-auto FrankaRobotState::set_child_links_recursively(const std::shared_ptr<const urdf::Link>& link)
-    -> void {
-  for (const auto& child_link : link->child_links) {
-    link_names.push_back(child_link->name);
-    set_child_links_recursively(child_link);
+void FrankaRobotState::set_child_links(const std::shared_ptr<const urdf::Link>& link) {
+  // Create a stack and push the root node
+  std::stack<std::shared_ptr<const urdf::Link>> stack;
+  stack.push(link);
+
+  // Iterate while the stack is not empty
+  while (!stack.empty()) {
+    // Pop a link from the stack and add its name to link_names
+    std::shared_ptr<const urdf::Link> current_link = stack.top();
+    stack.pop();
+    link_names.push_back(current_link->name);
+
+    // Push the children of the current link to the stack
+    for (const auto& child_link : current_link->child_links) {
+      stack.push(child_link);
+    }
   }
 }
 
 auto FrankaRobotState::set_links_from_urdf() -> void {
   auto root_link = model_->getRoot();
   link_names.push_back(root_link->name);
-  set_child_links_recursively(root_link);
+  set_child_links(root_link);
 }
 
 auto FrankaRobotState::set_joints_from_urdf() -> void {
@@ -267,6 +280,10 @@ auto FrankaRobotState::get_values_as_message(franka_msgs::msg::FrankaRobotState&
       break;
   }
   return true;
+}
+
+auto FrankaRobotState::get_robot_state() -> franka::RobotState* {
+  return robot_state_ptr;
 }
 
 }  // namespace franka_semantic_components

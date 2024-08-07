@@ -14,7 +14,7 @@
 
 #include "franka_robot_state_broadcaster/franka_robot_state_broadcaster.hpp"
 
-#include <stddef.h>
+#include <cstddef>
 #include <limits>
 #include <memory>
 #include <string>
@@ -56,7 +56,7 @@ controller_interface::InterfaceConfiguration
 FrankaRobotStateBroadcaster::state_interface_configuration() const {
   controller_interface::InterfaceConfiguration state_interfaces_config;
   state_interfaces_config.type = controller_interface::interface_configuration_type::INDIVIDUAL;
-  state_interfaces_config.names = franka_robot_state->get_state_interface_names();
+  state_interfaces_config.names = franka_robot_state_->get_state_interface_names();
   return state_interfaces_config;
 }
 
@@ -68,8 +68,8 @@ controller_interface::CallbackReturn FrankaRobotStateBroadcaster::on_configure(
     RCLCPP_ERROR(get_node()->get_logger(), "Failed to get robot_description parameter");
     return CallbackReturn::ERROR;
   }
-  if (!franka_robot_state) {
-    franka_robot_state = std::make_unique<franka_semantic_components::FrankaRobotState>(
+  if (!franka_robot_state_) {
+    franka_robot_state_ = std::make_unique<franka_semantic_components::FrankaRobotState>(
         franka_semantic_components::FrankaRobotState(params.arm_id + "/" + state_interface_name,
                                                      robot_description));
   }
@@ -99,7 +99,7 @@ controller_interface::CallbackReturn FrankaRobotStateBroadcaster::on_configure(
     realtime_franka_state_publisher =
         std::make_shared<realtime_tools::RealtimePublisher<franka_msgs::msg::FrankaRobotState>>(
             franka_state_publisher);
-    franka_robot_state->initialize_robot_state_msg(realtime_franka_state_publisher->msg_);
+    franka_robot_state_->initialize_robot_state_msg(realtime_franka_state_publisher->msg_);
   } catch (const std::exception& e) {
     fprintf(stderr,
             "Exception thrown during publisher creation at configure stage with message : %s \n",
@@ -112,13 +112,13 @@ controller_interface::CallbackReturn FrankaRobotStateBroadcaster::on_configure(
 
 controller_interface::CallbackReturn FrankaRobotStateBroadcaster::on_activate(
     const rclcpp_lifecycle::State& /*previous_state*/) {
-  franka_robot_state->assign_loaned_state_interfaces(state_interfaces_);
+  franka_robot_state_->assign_loaned_state_interfaces(state_interfaces_);
   return CallbackReturn::SUCCESS;
 }
 
 controller_interface::CallbackReturn FrankaRobotStateBroadcaster::on_deactivate(
     const rclcpp_lifecycle::State& /*previous_state*/) {
-  franka_robot_state->release_interfaces();
+  franka_robot_state_->release_interfaces();
   return CallbackReturn::SUCCESS;
 }
 
@@ -128,7 +128,7 @@ controller_interface::return_type FrankaRobotStateBroadcaster::update(
   if (realtime_franka_state_publisher && realtime_franka_state_publisher->trylock()) {
     realtime_franka_state_publisher->msg_.header.stamp = time;
 
-    if (!franka_robot_state->get_values_as_message(realtime_franka_state_publisher->msg_)) {
+    if (!franka_robot_state_->get_values_as_message(realtime_franka_state_publisher->msg_)) {
       RCLCPP_ERROR(get_node()->get_logger(),
                    "Failed to get franka state via franka state interface.");
       realtime_franka_state_publisher->unlock();

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <franka_example_controllers/joint_impedance_example_controller.hpp>
+#include <franka_example_controllers/robot_utils.hpp>
 
 #include <cassert>
 #include <cmath>
@@ -68,7 +69,7 @@ controller_interface::return_type JointImpedanceExampleController::update(
 
 CallbackReturn JointImpedanceExampleController::on_init() {
   try {
-    auto_declare<std::string>("arm_id", "panda");
+    auto_declare<std::string>("arm_id", "");
     auto_declare<std::vector<double>>("k_gains", {});
     auto_declare<std::vector<double>>("d_gains", {});
   } catch (const std::exception& e) {
@@ -106,6 +107,21 @@ CallbackReturn JointImpedanceExampleController::on_configure(
     k_gains_(i) = k_gains.at(i);
   }
   dq_filtered_.setZero();
+
+  auto parameters_client =
+      std::make_shared<rclcpp::AsyncParametersClient>(get_node(), "/robot_state_publisher");
+  parameters_client->wait_for_service();
+
+  auto future = parameters_client->get_parameters({"robot_description"});
+  auto result = future.get();
+  if (!result.empty()) {
+    robot_description_ = result[0].value_to_string();
+  } else {
+    RCLCPP_ERROR(get_node()->get_logger(), "Failed to get robot_description parameter.");
+  }
+
+  arm_id_ = robot_utils::getRobotNameFromDescription(robot_description_, get_node()->get_logger());
+
   return CallbackReturn::SUCCESS;
 }
 

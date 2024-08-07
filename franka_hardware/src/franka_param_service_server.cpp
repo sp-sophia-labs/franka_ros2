@@ -21,46 +21,53 @@ FrankaParamServiceServer::FrankaParamServiceServer(const rclcpp::NodeOptions& op
     : rclcpp::Node("service_server", options), robot_(std::move(robot)) {
   set_joint_stiffness_service_ = create_service<franka_msgs::srv::SetJointStiffness>(
       "~/set_joint_stiffness",
-      std::bind(  // NOLINT [modernize-avoid-bind]
-          &FrankaParamServiceServer::setJointStiffnessCallback, this, std::placeholders::_1,
-          std::placeholders::_2));
+      [this](const std::shared_ptr<franka_msgs::srv::SetJointStiffness::Request>& request,
+             const std::shared_ptr<franka_msgs::srv::SetJointStiffness::Response>& response) {
+        setJointStiffnessCallback(request, response);
+      });
 
   set_cartesian_stiffness_service_ = create_service<franka_msgs::srv::SetCartesianStiffness>(
       "~/set_cartesian_stiffness",
-      std::bind(  // NOLINT [modernize-avoid-bind]
-          &FrankaParamServiceServer::setCartesianStiffnessCallback, this, std::placeholders::_1,
-          std::placeholders::_2));
+      [this](const std::shared_ptr<franka_msgs::srv::SetCartesianStiffness::Request>& request,
+             const std::shared_ptr<franka_msgs::srv::SetCartesianStiffness::Response>& response) {
+        setCartesianStiffnessCallback(request, response);
+      });
 
   set_tcp_frame_service_ = create_service<franka_msgs::srv::SetTCPFrame>(
       "~/set_tcp_frame",
-      std::bind(  // NOLINT [modernize-avoid-bind]
-          &FrankaParamServiceServer::setTCPFrameCallback, this, std::placeholders::_1,
-          std::placeholders::_2));
+      [this](const std::shared_ptr<franka_msgs::srv::SetTCPFrame::Request>& request,
+             const std::shared_ptr<franka_msgs::srv::SetTCPFrame::Response>& response) {
+        setTCPFrameCallback(request, response);
+      });
 
   set_stiffness_frame_service_ = create_service<franka_msgs::srv::SetStiffnessFrame>(
       "~/set_stiffness_frame",
-      std::bind(  // NOLINT [modernize-avoid-bind]
-          &FrankaParamServiceServer::setStiffnessFrameCallback, this, std::placeholders::_1,
-          std::placeholders::_2));
+      [this](const std::shared_ptr<franka_msgs::srv::SetStiffnessFrame::Request>& request,
+             const std::shared_ptr<franka_msgs::srv::SetStiffnessFrame::Response>& response) {
+        setStiffnessFrameCallback(request, response);
+      });
 
   set_force_torque_collision_behavior_service_ =
       create_service<franka_msgs::srv::SetForceTorqueCollisionBehavior>(
           "~/set_force_torque_collision_behavior",
-          std::bind(  // NOLINT [modernize-avoid-bind]
-              &FrankaParamServiceServer::setForceTorqueCollisionBehaviorCallback, this,
-              std::placeholders::_1, std::placeholders::_2));
+          [this](const std::shared_ptr<franka_msgs::srv::SetForceTorqueCollisionBehavior::Request>&
+                     request,
+                 const std::shared_ptr<franka_msgs::srv::SetForceTorqueCollisionBehavior::Response>&
+                     response) { setForceTorqueCollisionBehaviorCallback(request, response); });
 
   set_full_collision_behavior_service_ = create_service<franka_msgs::srv::SetFullCollisionBehavior>(
       "~/set_full_collision_behavior",
-      std::bind(  // NOLINT [modernize-avoid-bind]
-          &FrankaParamServiceServer::setFullCollisionBehaviorCallback, this, std::placeholders::_1,
-          std::placeholders::_2));
+      [this](
+          const std::shared_ptr<franka_msgs::srv::SetFullCollisionBehavior::Request>& request,
+          const std::shared_ptr<franka_msgs::srv::SetFullCollisionBehavior::Response>& response) {
+        setFullCollisionBehaviorCallback(request, response);
+      });
 
   set_load_service_ = create_service<franka_msgs::srv::SetLoad>(
-      "~/set_load",
-      std::bind(  // NOLINT [modernize-avoid-bind]
-          &FrankaParamServiceServer::setLoadCallback, this, std::placeholders::_1,
-          std::placeholders::_2));
+      "~/set_load", [this](const std::shared_ptr<franka_msgs::srv::SetLoad::Request>& request,
+                           const std::shared_ptr<franka_msgs::srv::SetLoad::Response>& response) {
+        setLoadCallback(request, response);
+      });
 
   RCLCPP_INFO(get_logger(), "Service started");
 }

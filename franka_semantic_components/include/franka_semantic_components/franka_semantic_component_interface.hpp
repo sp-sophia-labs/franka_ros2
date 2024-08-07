@@ -98,14 +98,14 @@ class FrankaSemanticComponentInterface {
    *
    * \return std::vector<double>  state_interface_values
    */
-  std::vector<double> get_values_state_interfaces() const;
+  [[nodiscard]] std::vector<double> get_values_state_interfaces() const;
 
   /**
    *  Return all values for the command interfaces
    *
    * \return std::vector<double>  command_interface_values
    */
-  std::vector<double> get_values_command_interfaces() const;
+  [[nodiscard]] std::vector<double> get_values_command_interfaces() const;
 
   /**
    * Set all values for the command interfaces
