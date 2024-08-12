@@ -36,6 +36,7 @@ add_library(
         src/cartesian_velocity_example_controller.cpp
         src/cartesian_pose_example_controller.cpp
         src/joint_impedance_with_ik_example_controller.cpp
+        src/cartesian_impedance_example_controller.cpp
         src/cartesian_elbow_example_controller.cpp
         src/cartesian_orientation_example_controller.cpp
         src/elbow_example_controller.cpp

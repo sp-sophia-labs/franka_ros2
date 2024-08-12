@@ -3,7 +3,7 @@
 
 namespace franka_example_controllers {
 
-CallbackReturn CartesianImpedanceExampleController::on_init() {
+CartesianImpedanceExampleController::CallbackReturn CartesianImpedanceExampleController::on_init() {
   try {
     auto_declare<std::string>("arm_id", "fr3");
   } catch (const std::exception& e) {
@@ -67,18 +67,20 @@ CartesianImpedanceExampleController::state_interface_configuration() const {
   return state_interfaces_config;
 }
 
-CallbackReturn CartesianImpedanceExampleController::on_configure(
+CartesianImpedanceExampleController::CallbackReturn CartesianImpedanceExampleController::on_configure(
     const rclcpp_lifecycle::State& /*previous_state*/) {
   arm_id_ = get_node()->get_parameter("arm_id").as_string();
+  auto robot_description = get_node()->get_parameter("robot_description").as_string();
   franka_robot_state_ = std::make_unique<franka_semantic_components::FrankaRobotState>(
-      franka_semantic_components::FrankaRobotState(arm_id_ + "/" + k_robot_state_interface_name));
+      franka_semantic_components::FrankaRobotState(arm_id_ + "/" + k_robot_state_interface_name,
+                                                   robot_description));
   franka_robot_model_ = std::make_unique<franka_semantic_components::FrankaRobotModel>(
       franka_semantic_components::FrankaRobotModel(arm_id_ + "/" + k_robot_model_interface_name,
                                                    arm_id_ + "/" + k_robot_state_interface_name));
   return CallbackReturn::SUCCESS;
 }
 
-CallbackReturn CartesianImpedanceExampleController::on_activate(
+CartesianImpedanceExampleController::CallbackReturn CartesianImpedanceExampleController::on_activate(
     const rclcpp_lifecycle::State& /*previous_state*/) {
   franka_robot_state_->assign_loaned_state_interfaces(state_interfaces_);
   franka_robot_model_->assign_loaned_state_interfaces(state_interfaces_);
@@ -165,7 +167,7 @@ controller_interface::return_type CartesianImpedanceExampleController::update(
 
   // pseudoinverse for nullspace handling
   Eigen::MatrixXd jacobian_transpose_pinv;
-  pseudoInverse(jacobian.transpose(), jacobian_transpose_pinv);
+  jacobian_transpose_pinv = pseudoInverse(jacobian.transpose(), true);
 
   // Cartesian PD control with damping ratio = 1
   tau_task << jacobian.transpose() *
@@ -180,7 +182,7 @@ controller_interface::return_type CartesianImpedanceExampleController::update(
   tau_d << tau_task + tau_nullspace + coriolis;
 
   // saturate the commanded torque to joint limits
-  tau_d << saturateTorqueRate(tau_d, tau_j_d);
+  tau_d << saturateTorqueRate(tau_d, tau_J_d);
 
   for (int i = 0; i < num_joints; i++) {
     command_interfaces_[i].set_value(tau_d[i]);
