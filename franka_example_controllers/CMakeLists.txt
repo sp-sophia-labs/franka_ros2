@@ -25,6 +25,15 @@ find_package(Eigen3 REQUIRED)
 find_package(franka_semantic_components REQUIRED)
 find_package(moveit_core REQUIRED)
 find_package(moveit_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+
+
+add_executable(equilibrium_pose_publisher src/equilibrium_pose_publisher.cpp)
+# Link the executable with the necessary libraries
+ament_target_dependencies(equilibrium_pose_publisher
+  rclcpp
+  geometry_msgs
+)
 
 add_library(
         ${PROJECT_NAME}

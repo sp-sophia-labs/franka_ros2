@@ -48,7 +48,7 @@ controller_manager:
       type: franka_robot_state_broadcaster/FrankaRobotStateBroadcaster
 
     cartesian_impedance_example_controller:
-      type: franka_example_controllers::CartesianImpedanceExampleController
+      type: franka_example_controllers/CartesianImpedanceExampleController
 
 
 joint_impedance_with_ik_example_controller:

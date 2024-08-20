@@ -119,7 +119,8 @@ controller_interface::CallbackReturn CartesianImpedanceExampleController::on_dea
 
 controller_interface::return_type CartesianImpedanceExampleController::update(
     const rclcpp::Time& time,
-    const rclcpp::Duration& period) {
+    const rclcpp::Duration& period
+    ) {
   // get state variables
   robot_state_ = franka_msgs::msg::FrankaRobotState();
   franka_robot_state_->get_values_as_message(robot_state_);
@@ -135,7 +136,7 @@ controller_interface::return_type CartesianImpedanceExampleController::update(
 
   Eigen::Map<Eigen::Matrix<double, 7, 1>> q(robot_state_.measured_joint_state.position.data());
   Eigen::Map<Eigen::Matrix<double, 7, 1>> dq(robot_state_.measured_joint_state.velocity.data());
-  Eigen::Map<Eigen::Matrix<double, 7, 1>> tau_J_d(robot_state_.measured_joint_state.effort.data());
+  Eigen::Map<Eigen::Matrix<double, 7, 1>> tau_j_d(robot_state_.measured_joint_state.effort.data());
   Eigen::Vector3d position(robot_state_.o_t_ee.pose.position.x, robot_state_.o_t_ee.pose.position.y,
                            robot_state_.o_t_ee.pose.position.z);
   Eigen::Quaterniond orientation(
@@ -182,11 +183,10 @@ controller_interface::return_type CartesianImpedanceExampleController::update(
   tau_d << tau_task + tau_nullspace + coriolis;
 
   // saturate the commanded torque to joint limits
-  tau_d << saturateTorqueRate(tau_d, tau_J_d);
+  tau_d << saturateTorqueRate(tau_d, tau_j_d);
 
   for (int i = 0; i < num_joints; i++) {
     command_interfaces_[i].set_value(tau_d[i]);
-    std::cout << tau_d[i] << std::endl;
   }
 
   // update parameters changed online either through dynamic reconfigure or through the interactive
@@ -233,12 +233,12 @@ void CartesianImpedanceExampleController::equilibriumPoseCallback(
 
 Eigen::Matrix<double, 7, 1> CartesianImpedanceExampleController::saturateTorqueRate(
     const Eigen::Matrix<double, 7, 1>& tau_d_calculated,
-    const Eigen::Matrix<double, 7, 1>& tau_J_d) {  // NOLINT (readability-identifier-naming)
+    const Eigen::Matrix<double, 7, 1>& tau_j_d) {  // NOLINT (readability-identifier-naming)
   Eigen::Matrix<double, 7, 1> tau_d_saturated{};
   for (size_t i = 0; i < 7; i++) {
-    double difference = tau_d_calculated[i] - tau_J_d[i];
+    double difference = tau_d_calculated[i] - tau_j_d[i];
     tau_d_saturated[i] =
-        tau_J_d[i] + std::max(std::min(difference, delta_tau_max_), -delta_tau_max_);
+        tau_j_d[i] + std::max(std::min(difference, delta_tau_max_), -delta_tau_max_);
   }
   return tau_d_saturated;
 }

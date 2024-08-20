@@ -64,7 +64,7 @@ class CartesianImpedanceExampleController : public controller_interface::Control
   // Saturation
   Eigen::Matrix<double, 7, 1> saturateTorqueRate(
       const Eigen::Matrix<double, 7, 1>& tau_d_calculated,
-      const Eigen::Matrix<double, 7, 1>& tau_J_d);
+      const Eigen::Matrix<double, 7, 1>& tau_j_d);
 
   // Classic cartesian controller
   double filter_params_{0.005};

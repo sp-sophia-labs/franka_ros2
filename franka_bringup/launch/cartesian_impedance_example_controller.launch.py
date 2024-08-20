@@ -66,4 +66,9 @@ def generate_launch_description():
             arguments=['cartesian_impedance_example_controller'],
             output='screen',
         ),
+        Node(
+            package='franka_example_controllers',
+            executable='equilibrium_pose_publisher',
+            output='screen',
+        ),
     ])
