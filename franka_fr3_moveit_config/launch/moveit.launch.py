@@ -1,20 +1,3 @@
-#  Copyright (c) 2024 Franka Robotics GmbH
-#
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
-
-# This file is an adapted version of
-# https://github.com/ros-planning/moveit_resources/blob/ca3f7930c630581b5504f3b22c40b4f82ee6369d/panda_moveit_config/launch/demo.launch.py
-
 import os
 
 from ament_index_python.packages import get_package_share_directory
@@ -36,6 +19,9 @@ from launch.substitutions import (
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
+
+from launch_ros.descriptions import ComposableNode
+from launch_ros.actions import ComposableNodeContainer
 
 import yaml
 
@@ -67,7 +53,7 @@ def generate_launch_description():
         'db', default_value='False', description='Database flag'
     )
 
-    # planning_context
+    # Robot description
     franka_xacro_file = os.path.join(
         get_package_share_directory('franka_description'),
         'robots', 'fr3', 'fr3.urdf.xacro'
@@ -95,11 +81,11 @@ def generate_launch_description():
     robot_description_semantic = {'robot_description_semantic': ParameterValue(
         robot_description_semantic_config, value_type=str)}
 
+    # Planning config
     kinematics_yaml = load_yaml(
         'franka_fr3_moveit_config', 'config/kinematics.yaml'
     )
 
-    # Planning Functionality
     ompl_planning_pipeline_config = {
         'move_group': {
             'planning_plugin': 'ompl_interface/OMPLPlanner',
@@ -117,7 +103,7 @@ def generate_launch_description():
     )
     ompl_planning_pipeline_config['move_group'].update(ompl_planning_yaml)
 
-    # Trajectory Execution Functionality
+    # Trajectory Execution 
     moveit_simple_controllers_yaml = load_yaml(
         'franka_fr3_moveit_config', 'config/fr3_controllers.yaml'
     )
@@ -141,7 +127,80 @@ def generate_launch_description():
         'publish_transforms_updates': True,
     }
 
-    # Start the actual move_group node/action server
+    # Hybrid planner config
+    common_hybrid_planning_param = load_yaml(
+        "moveit_hybrid_planning", "config/common_hybrid_planning_params.yaml"
+    )
+    global_planner_param = load_yaml(
+        "moveit_hybrid_planning", "config/global_planner.yaml"
+    )
+    local_planner_param = load_yaml(
+        "moveit_hybrid_planning", "config/fr3_local_planner.yaml"
+    )
+    hybrid_planning_manager_param = load_yaml(
+        "moveit_hybrid_planning", "config/hybrid_planning_manager.yaml"
+    )
+
+    # Hybrid container
+    container = ComposableNodeContainer(
+        name="hybrid_planning_container",
+        namespace="/",
+        package="rclcpp_components",
+        executable="component_container_mt",
+        composable_node_descriptions=[
+            ComposableNode(
+                package="moveit_hybrid_planning",
+                plugin="moveit::hybrid_planning::GlobalPlannerComponent",
+                name="global_planner",
+                parameters=[
+                    common_hybrid_planning_param,
+                    global_planner_param,
+                    robot_description,
+                    robot_description_semantic,
+                    kinematics_yaml,
+                    ompl_planning_pipeline_config,
+                    moveit_controllers,
+                ],
+            ),
+            ComposableNode(
+                package="moveit_hybrid_planning",
+                plugin="moveit::hybrid_planning::LocalPlannerComponent",
+                name="local_planner",
+                parameters=[
+                    common_hybrid_planning_param,
+                    local_planner_param,
+                    robot_description,
+                    robot_description_semantic,
+                    kinematics_yaml,
+                ],
+            ),
+            ComposableNode(
+                package="moveit_hybrid_planning",
+                plugin="moveit::hybrid_planning::HybridPlanningManager",
+                name="hybrid_planning_manager",
+                parameters=[
+                    common_hybrid_planning_param,
+                    hybrid_planning_manager_param,
+                ],
+            ),
+        ],
+        output="screen",
+    )
+
+    # Hybrid planner demo node
+    demo_node = Node(
+        package="moveit_hybrid_planning",
+        executable="fr3_demo_node",
+        name="fr3_demo_node",
+        output="screen",
+        parameters=[
+            robot_description,
+            robot_description_semantic,
+            common_hybrid_planning_param,
+        ],
+    )
+
+    # Move_group node/action server
     run_move_group_node = Node(
         package='moveit_ros_move_group',
         executable='move_group',
@@ -175,6 +234,13 @@ def generate_launch_description():
             kinematics_yaml,
         ],
     )
+
+    
+    # Static TF
+    base_tf = Node(package = "tf2_ros", 
+                       executable = "static_transform_publisher",
+                       arguments = ["0", "0", "0", "0", "0", "0", "base", "world"]) # parent child yaw(z), pitch(y), roll(x)
+
 
     # Publish TF
     robot_state_publisher = Node(
@@ -260,7 +326,9 @@ def generate_launch_description():
          ros2_control_node,
          joint_state_publisher,
          franka_robot_state_broadcaster,
-         gripper_launch_file
+         gripper_launch_file,
+         container,
+        #  demo_node
          ]
         + load_controllers
     )
