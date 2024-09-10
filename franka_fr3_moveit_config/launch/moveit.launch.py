@@ -86,6 +86,10 @@ def generate_launch_description():
         'franka_fr3_moveit_config', 'config/kinematics.yaml'
     )
 
+    joint_limits = {"robot_description_planning": load_yaml(
+        "franka_fr3_moveit_config", "config/joint_limits.yaml"
+    )}
+
     ompl_planning_pipeline_config = {
         'move_group': {
             'planning_plugin': 'ompl_interface/OMPLPlanner',
@@ -155,11 +159,13 @@ def generate_launch_description():
                 parameters=[
                     common_hybrid_planning_param,
                     global_planner_param,
+                    local_planner_param,
                     robot_description,
                     robot_description_semantic,
                     kinematics_yaml,
                     ompl_planning_pipeline_config,
                     moveit_controllers,
+                    joint_limits
                 ],
             ),
             ComposableNode(
@@ -168,10 +174,12 @@ def generate_launch_description():
                 name="local_planner",
                 parameters=[
                     common_hybrid_planning_param,
+                    global_planner_param,
                     local_planner_param,
                     robot_description,
                     robot_description_semantic,
                     kinematics_yaml,
+                    joint_limits
                 ],
             ),
             ComposableNode(
@@ -181,6 +189,7 @@ def generate_launch_description():
                 parameters=[
                     common_hybrid_planning_param,
                     hybrid_planning_manager_param,
+                    joint_limits
                 ],
             ),
         ],
@@ -197,6 +206,10 @@ def generate_launch_description():
             robot_description,
             robot_description_semantic,
             common_hybrid_planning_param,
+            kinematics_yaml,
+            ompl_planning_pipeline_config,
+            moveit_controllers,
+            joint_limits
         ],
     )
 
@@ -213,6 +226,7 @@ def generate_launch_description():
             trajectory_execution,
             moveit_controllers,
             planning_scene_monitor_parameters,
+            joint_limits
         ],
     )
 
@@ -328,7 +342,7 @@ def generate_launch_description():
          franka_robot_state_broadcaster,
          gripper_launch_file,
          container,
-        #  demo_node
+         demo_node
          ]
         + load_controllers
     )
