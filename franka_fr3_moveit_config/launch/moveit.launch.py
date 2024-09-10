@@ -213,6 +213,13 @@ def generate_launch_description():
         ],
     )
 
+    # RS Driver
+    perception_launch = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([os.path.join(
+                get_package_share_directory('franka_fr3_moveit_config'),'launch'),
+                '/rs_driver.launch.py']),
+            )
+
     # Move_group node/action server
     run_move_group_node = Node(
         package='moveit_ros_move_group',
@@ -231,16 +238,12 @@ def generate_launch_description():
     )
 
     # RViz
-    rviz_base = os.path.join(get_package_share_directory(
-        'franka_fr3_moveit_config'), 'rviz')
-    rviz_full_config = os.path.join(rviz_base, 'moveit.rviz')
 
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
         name='rviz2',
         output='log',
-        arguments=['-d', rviz_full_config],
         parameters=[
             robot_description,
             robot_description_semantic,
@@ -342,7 +345,9 @@ def generate_launch_description():
          franka_robot_state_broadcaster,
          gripper_launch_file,
          container,
-         demo_node
+         demo_node,
+         perception_launch,
+         base_tf
          ]
         + load_controllers
     )
