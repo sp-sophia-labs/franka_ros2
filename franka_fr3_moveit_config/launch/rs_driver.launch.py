@@ -14,19 +14,12 @@ def generate_launch_description():
                 get_package_share_directory('realsense2_camera'),'launch'),
                 '/rs_launch.py']),
             launch_arguments = {
-                'pointcloud.enable': 'True',
+                'pointcloud.enable': 'False',
             }.items(),
             )
     rs_tf = Node(package = "tf2_ros", 
                        executable = "static_transform_publisher",
-                       arguments = ["1.44", "0", "0.3", "3.14", "0", "0", "fr3_link0", "camera_link"]) # parent child yaw(z), pitch(y), roll(x)
-
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        output='log',
-    )
+                       arguments = ["1.29", "0", "0.3", "3.14", "0", "0", "fr3_link0", "camera_link"]) # parent child yaw(z), pitch(y), roll(x)
 
     launch_description = []
     launch_description.extend([realsense_launch, rs_tf])
