@@ -19,7 +19,7 @@ def generate_launch_description():
             )
     rs_tf = Node(package = "tf2_ros", 
                        executable = "static_transform_publisher",
-                       arguments = ["1.29", "0", "0.3", "3.14", "0", "0", "fr3_link0", "camera_link"]) # parent child yaw(z), pitch(y), roll(x)
+                       arguments = ["1.295", "0", "0.3", "3.14", "0", "0", "fr3_link0", "camera_link"]) # parent child yaw(z), pitch(y), roll(x)
 
     launch_description = []
     launch_description.extend([realsense_launch, rs_tf])

@@ -99,7 +99,7 @@ def generate_launch_description():
                                 'default_planner_request_adapters/FixStartStateBounds '
                                 'default_planner_request_adapters/FixStartStateCollision '
                                 'default_planner_request_adapters/FixStartStatePathConstraints',
-            'start_state_max_bounds_error': 0.1,
+            'start_state_max_bounds_error': 0.5,
         }
     }
     ompl_planning_yaml = load_yaml(
